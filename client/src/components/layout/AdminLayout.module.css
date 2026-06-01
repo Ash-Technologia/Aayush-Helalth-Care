@@ -1,0 +1,130 @@
+/* AdminLayout.module.css — White/Blue Theme */
+
+.root {
+  display: flex;
+  min-height: 100dvh;
+  background: var(--bg-surface);
+}
+
+/* ─── Sidebar ─────────────────────────────────────────────────── */
+.sidebar {
+  width: 256px;
+  flex-shrink: 0;
+  background: var(--clr-slate-900);
+  border-right: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow-y: auto;
+}
+
+.sidebarLogo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.logoIcon {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, var(--clr-blue-700), var(--clr-blue-500));
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.4);
+}
+
+.logoText { font-size: 1rem; font-weight: 700; color: #ffffff; }
+.logoSub  { font-size: 0.75rem; color: var(--clr-slate-400); margin-top: 1px; }
+
+/* ─── Nav items ──────────────────────────────────────────────── */
+.sidebarNav {
+  flex: 1;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--clr-slate-400);
+  transition: all var(--transition-fast);
+  position: relative;
+  cursor: pointer;
+}
+.navItem:hover { color: #ffffff; background: rgba(255,255,255,0.07); }
+
+.navItem.active {
+  color: #ffffff;
+  background: var(--clr-blue-700);
+}
+
+.navIcon { font-size: 1.1rem; width: 22px; text-align: center; flex-shrink: 0; }
+
+.activeBar {
+  display: none; /* replaced by full active background */
+}
+
+/* ─── Sidebar footer ─────────────────────────────────────────── */
+.sidebarFooter {
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.adminInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.adminAvatar {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--clr-blue-700), var(--clr-blue-500));
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.adminName { font-size: 0.875rem; font-weight: 600; color: #ffffff; }
+.adminRole { font-size: 0.75rem; color: var(--clr-slate-400); }
+
+.logoutBtn { width: 100%; justify-content: center; color: #fca5a5; background: transparent; border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius-md); padding: 8px 14px; }
+.logoutBtn:hover { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.4); color: #f87171; }
+
+/* ─── Content area ───────────────────────────────────────────── */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  min-width: 0;
+  padding: 32px;
+  background: var(--bg-surface);
+}
+
+@media (max-width: 1024px) {
+  .sidebar { width: 220px; }
+  .content { padding: 20px; }
+}
+
+@media (max-width: 768px) {
+  .root { flex-direction: column; }
+  .sidebar { width: 100%; height: auto; position: static; flex-direction: row; overflow-x: auto; }
+  .sidebarNav { flex-direction: row; padding: 8px; overflow-x: auto; }
+  .sidebarFooter { display: none; }
+}

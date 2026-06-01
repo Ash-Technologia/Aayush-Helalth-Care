@@ -1,0 +1,52 @@
+/* ReviewPage.module.css — White/Blue Theme */
+.page {
+  min-height: calc(100dvh - var(--header-h));
+  background: var(--bg-surface);
+  padding-block: clamp(36px, 5vw, 60px);
+}
+
+.header { text-align: center; margin-bottom: 28px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.headerIcon { font-size: 3rem; }
+.title      { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); font-family: var(--font-display); }
+.subtitle   { font-size: 0.9375rem; color: var(--text-secondary); line-height: 1.7; max-width: 440px; }
+
+.card {
+  max-width: 560px;
+  margin-inline: auto;
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: clamp(24px, 4vw, 36px);
+  box-shadow: var(--shadow-md);
+}
+
+.apptRef {
+  display: flex; align-items: center; gap: 10px; justify-content: center;
+  padding: 12px 20px; margin-bottom: 20px;
+  font-size: 0.875rem; color: var(--text-secondary);
+  background: var(--clr-blue-50);
+  border: 1px solid var(--clr-blue-100);
+  border-radius: var(--radius-md);
+}
+
+.form { display: flex; flex-direction: column; gap: 22px; }
+
+.starsSection { display: flex; flex-direction: column; gap: 8px; }
+.label { font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); }
+
+.stars { display: flex; gap: 6px; }
+.star {
+  font-size: 2.5rem; line-height: 1; cursor: pointer;
+  color: var(--border-default);
+  transition: color var(--transition-fast), transform var(--transition-fast);
+}
+.star:hover, .star.starActive { color: var(--clr-gold-400); transform: scale(1.1); }
+
+.starLabel { font-size: 0.875rem; font-weight: 600; color: var(--clr-gold-500); }
+.textarea  { resize: vertical; min-height: 120px; }
+
+.anonRow {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.875rem; color: var(--text-secondary); cursor: pointer;
+}
+.anonRow input { accent-color: var(--clr-blue-600); width: 16px; height: 16px; flex-shrink: 0; }

@@ -1,0 +1,70 @@
+/* AdminUsersPage.module.css — White/Blue Theme */
+
+.loadingState, .errorState {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 16px; min-height: 50vh; color: var(--text-secondary);
+}
+
+.header   { margin-bottom: 28px; }
+.title    { font-family: var(--font-display); font-size: 2rem; font-weight: 700; color: var(--text-primary); }
+.subtitle { color: var(--text-secondary); font-size: 0.95rem; margin-top: 4px; }
+
+.filterGrid {
+  display: grid; grid-template-columns: 2fr 1fr; gap: 16px;
+  margin-bottom: 28px; background: #ffffff;
+  border: 1px solid var(--border-subtle); padding: 20px; border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+}
+@media (max-width: 768px) { .filterGrid { grid-template-columns: 1fr; } }
+
+.tableWrapper {
+  background: #ffffff; border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg); overflow-x: auto; margin-bottom: 24px;
+  box-shadow: var(--shadow-xs);
+}
+
+.table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+.table th, .table td { padding: 16px 20px; border-bottom: 1px solid var(--border-subtle); }
+.table th { background: var(--bg-surface); color: var(--text-secondary); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+.table tbody tr:hover { background: var(--clr-blue-50); }
+
+.patientCell { display: flex; align-items: center; gap: 16px; }
+.avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--clr-blue-700), var(--clr-blue-500));
+  color: white; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 1rem;
+}
+.patientCell .name   { font-weight: 600; color: var(--text-primary); }
+.patientCell .contact{ font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+
+.dateText      { font-size: 0.85rem; color: var(--text-secondary); }
+.actionButtons { display: flex; gap: 8px; justify-content: flex-end; }
+
+.pagination    { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 24px; }
+.pageIndicator { font-size: 0.875rem; color: var(--text-secondary); }
+
+.emptyState { text-align: center; padding: 64px 32px; background: #ffffff; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); color: var(--text-secondary); }
+.emptyIcon  { font-size: 3rem; margin-bottom: 16px; }
+
+.modalOverlay { position: fixed; inset: 0; background: var(--bg-overlay); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal); padding: 24px; }
+
+.modalContent { background: #ffffff; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); max-width: 680px; width: 100%; display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-xl); }
+
+.modalHeader { padding: 16px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; }
+.modalHeader h3  { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
+.modalHeaderMeta { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+
+.closeBtn { font-size: 1.5rem; color: var(--text-muted); }
+.closeBtn:hover { color: var(--text-primary); }
+
+.modalBody { padding: 20px; max-height: 50vh; overflow-y: auto; }
+.modalLoading, .modalEmpty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; color: var(--text-secondary); text-align: center; gap: 12px; }
+
+.historyTableWrapper { overflow-x: auto; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
+.historyTable { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; }
+.historyTable th, .historyTable td { padding: 12px 16px; border-bottom: 1px solid var(--border-subtle); }
+.historyTable th { background: var(--bg-surface); color: var(--text-secondary); font-weight: 600; font-size: 0.75rem; }
+.historyTable tbody tr:hover { background: var(--clr-blue-50); }
+
+.modalFooter { padding: 16px 20px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end; background: var(--bg-surface); }
