@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
 import toast from 'react-hot-toast';
 import { adminService } from '@services';
+import { resolveBackendAssetUrl } from '@services/api';
 import styles from './AdminProfilePage.module.css';
 
 export default function AdminProfilePage() {
@@ -490,7 +491,7 @@ export default function AdminProfilePage() {
               <h2>Doctor Portrait Photo</h2>
               {profileData?.imageUrl && (
                 <div className={styles.avatarPreview}>
-                  <img src={profileData.imageUrl} alt="Doctor portrait" />
+                  <img src={resolveBackendAssetUrl(profileData.imageUrl)} alt="Doctor portrait" />
                 </div>
               )}
               <form onSubmit={handlePhotoUpload} className={styles.uploadForm}>
@@ -565,7 +566,7 @@ export default function AdminProfilePage() {
               <h2>UPI Payment QR Code</h2>
               {profileData?.payment?.qrImageUrl && (
                 <div className={styles.qrPreview}>
-                  <img src={profileData.payment.qrImageUrl} alt="UPI QR Code" />
+                  <img src={resolveBackendAssetUrl(profileData.payment.qrImageUrl)} alt="UPI QR Code" />
                 </div>
               )}
               <form onSubmit={handleQrUpload} className={styles.uploadForm}>

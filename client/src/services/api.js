@@ -2,9 +2,47 @@ import axios from 'axios';
 import { store } from '@store/store';
 import { logout, adminLogout, setTokens } from '@store/slices/authSlice';
 
+const DEFAULT_API_URL = 'http://localhost:5000/api/v1';
+
+const normalizeApiBaseUrl = (value) => {
+  if (!value || value.startsWith('/')) {
+    return DEFAULT_API_URL;
+  }
+
+  try {
+    const parsed = new URL(value);
+    if (parsed.pathname === '/' || parsed.pathname === '') {
+      parsed.pathname = '/api/v1';
+    } else if (!parsed.pathname.endsWith('/api/v1')) {
+      parsed.pathname = `${parsed.pathname.replace(/\/+$/, '')}/api/v1`;
+    }
+    return parsed.toString().replace(/\/+$/, '');
+  } catch {
+    return DEFAULT_API_URL;
+  }
+};
+
+export const getApiBaseUrl = () => normalizeApiBaseUrl(import.meta.env.VITE_API_URL);
+
+export const getBackendOrigin = () => {
+  try {
+    return new URL(getApiBaseUrl()).origin;
+  } catch {
+    return 'http://localhost:5000';
+  }
+};
+
+export const resolveBackendAssetUrl = (url) => {
+  if (!url) return '';
+  if (/^https?:\/\//i.test(url)) return url;
+
+  const origin = getBackendOrigin();
+  return url.startsWith('/') ? `${origin}${url}` : `${origin}/${url}`;
+};
+
 // ── Base instance ─────────────────────────────────────────────────
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api/v1',
+  baseURL: getApiBaseUrl(),
   timeout: 30_000,
   headers: { 'Content-Type': 'application/json' },
 });
@@ -72,8 +110,7 @@ api.interceptors.response.use(
         : store.getState().auth.refreshToken;
       if (!refreshToken) throw new Error('No refresh token');
 
-      const baseURL = import.meta.env.VITE_API_URL || '';
-      const refreshURL = baseURL ? `${baseURL}/auth/refresh` : '/api/v1/auth/refresh';
+      const refreshURL = `${getApiBaseUrl()}/auth/refresh`;
       const { data } = await axios.post(refreshURL, { refreshToken });
       const { accessToken, refreshToken: newRefresh } = data.data;
 

@@ -26,14 +26,20 @@ app.use(
 );
 
 // ─── CORS ────────────────────────────────────────────────────────────────────
-const allowedOrigins = [
-  process.env.FRONTEND_URL || 'http://localhost:5173',
-];
+const allowedOrigins = new Set(
+  [process.env.FRONTEND_URL, process.env.LOCAL_FRONTEND_URL]
+    .filter(Boolean)
+    .flatMap((value) => value.split(',').map((origin) => origin.trim()))
+    .filter(Boolean)
+);
+
+allowedOrigins.add('http://localhost:5173');
+allowedOrigins.add('http://127.0.0.1:5173');
 app.use(
   cors({
     origin: (origin, callback) => {
       // allow requests with no origin (mobile apps, curl, Postman)
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin || allowedOrigins.has(origin)) {
         callback(null, true);
       } else {
         callback(new Error(`CORS: Origin '${origin}' not allowed.`));

@@ -12,6 +12,7 @@ import {
   nextBookingStep,
 } from '@store/slices/uiSlice';
 import { slotsService, appointmentService, paymentService, profileService } from '@services';
+import { resolveBackendAssetUrl } from '@services/api';
 import styles from './BookingPage.module.css';
 
 // ── Constants ─────────────────────────────────────────────────────
@@ -416,10 +417,7 @@ function StepPayment({ profile, appointment, onNext, onBack }) {
 
   const fee = appointment.feeSnapshot || profile?.consultationFee || 500;
   const upiId = appointment.payment?.upiId || 'aayushhealth@upi';
-  const qrUrl = appointment.payment?.qrImageUrl;
-  const resolvedQrUrl = qrUrl
-    ? (qrUrl.startsWith('http') ? qrUrl : qrUrl.startsWith('/') ? qrUrl : `/${qrUrl}`)
-    : '';
+  const resolvedQrUrl = resolveBackendAssetUrl(appointment.payment?.qrImageUrl);
 
   return (
     <div className={styles.stepContent}>

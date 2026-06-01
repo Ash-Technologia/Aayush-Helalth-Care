@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { adminService } from '@services';
+import { resolveBackendAssetUrl } from '@services/api';
 import styles from './AdminPaymentsPage.module.css';
 
 export default function AdminPaymentsPage() {
@@ -76,9 +77,7 @@ export default function AdminPaymentsPage() {
   };
 
   const getFullImageUrl = (url) => {
-    if (!url) return '';
-    if (url.startsWith('http')) return url;
-    return url.startsWith('/') ? url : `/${url}`;
+    return resolveBackendAssetUrl(url);
   };
 
   // Filter submissions by patient name/phone in memory (secondary filter)

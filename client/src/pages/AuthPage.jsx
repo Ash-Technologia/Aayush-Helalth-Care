@@ -5,6 +5,7 @@ import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { authService } from '@services';
+import { getApiBaseUrl } from '@services/api';
 import { setCredentials } from '@store/slices/authSlice';
 import styles from './AuthPage.module.css';
 
@@ -111,12 +112,7 @@ export default function AuthPage() {
 
   // ── Google OAuth ──────────────────────────────────────────────
   const handleGoogle = () => {
-    let apiBaseUrl = import.meta.env.VITE_API_URL;
-    if (!apiBaseUrl || apiBaseUrl.startsWith('/')) {
-      // In development, target the absolute backend server URL directly
-      apiBaseUrl = 'http://localhost:5000/api/v1';
-    }
-    window.location.href = `${apiBaseUrl}/auth/google`;
+    window.location.href = `${getApiBaseUrl()}/auth/google`;
   };
 
   const slideVariants = {

@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { FiShield } from 'react-icons/fi';
 import { profileService, reviewService } from '@services';
+import { resolveBackendAssetUrl } from '@services/api';
 import styles from './HomePage.module.css';
 
 // ── Animation variants ────────────────────────────────────────────
@@ -79,7 +80,7 @@ function HeroSection({ profile, content }) {
           <div className={styles.heroCard}>
             <div className={styles.heroImageWrap}>
               {profile?.imageUrl
-                ? <img src={profile.imageUrl} alt="" className={styles.heroImage} />
+                ? <img src={resolveBackendAssetUrl(profile.imageUrl)} alt="" className={styles.heroImage} />
                 : <div className={styles.heroImagePlaceholder}>
                   <div className={styles.placeholderCrest}>
                     <FiShield size={36} />

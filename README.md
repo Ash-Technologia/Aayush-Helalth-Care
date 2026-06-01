@@ -81,6 +81,7 @@ Install [Node.js](https://nodejs.org/) (v18 or higher) and [MongoDB](https://www
 | `EMAIL_USER` | NodeMailer email sender user | `dr.singhavi.clinic@gmail.com` |
 | `EMAIL_PASS` | Gmail App Password | `xxxx xxxx xxxx xxxx` |
 | `FRONTEND_URL` | CORS allowed origin link | `http://localhost:5173` (Dev) |
+| `LOCAL_FRONTEND_URL` | Optional comma-separated extra allowed frontend origins | `http://localhost:5173` |
 | `GOOGLE_CLIENT_ID` | OAuth Google Client ID | *(From Google Console)* |
 | `GOOGLE_CLIENT_SECRET`| OAuth Google Secret Key | *(From Google Console)* |
 
@@ -99,8 +100,13 @@ VITE_API_URL=https://aayush-backend.railway.app/api/v1
 1. Log in to [Railway.app](https://railway.app) and create a new project.
 2. Select **Deploy from GitHub repo** and point it to the `server/` directory of your repository.
 3. In **Settings**, change the **Root Directory** to `server`.
-4. Add all variables listed in the backend configuration to Railway's **Variables** settings.
+4. Add all variables listed in the backend configuration to Railway's **Variables** settings, especially:
+   - `MONGO_URI` pointing to MongoDB Atlas
+   - `FRONTEND_URL` set to your Vercel production domain
+   - `GOOGLE_CALLBACK_URL` set to your Railway callback URL
+   - `NODE_ENV=production`
 5. Railway will automatically detect the `Procfile` (`web: node src/index.js`) and spin up the backend instance.
+6. After the Railway URL is created, copy it and use it in the frontend `VITE_API_URL` value.
 
 ### Frontend: Vercel Deployment
 1. Log in to [Vercel](https://vercel.com) and create a **New Project**.
@@ -111,8 +117,25 @@ VITE_API_URL=https://aayush-backend.railway.app/api/v1
    - **Build Command**: `npm run build`
    - **Output Directory**: `dist`
 4. Under **Environment Variables**, add:
-   - `VITE_API_URL` pointing to your Railway production API endpoint (e.g. `https://your-backend.railway.app/api/v1`).
+   - `VITE_API_URL` pointing to your Railway production API endpoint (for example `https://your-backend.railway.app/api/v1`).
 5. Click **Deploy**. Vercel will handle SPA routes automatically due to `client/vercel.json` rewrite rules.
+6. After Vercel finishes, copy the production domain and paste it into Railway as `FRONTEND_URL`, then redeploy Railway once so CORS is updated.
+
+### Recommended Production Values
+
+Use these as a final checklist once both services are live:
+
+- Railway backend: `NODE_ENV=production`
+- Railway backend: `MONGO_URI=<MongoDB Atlas connection string>`
+- Railway backend: `FRONTEND_URL=https://<your-vercel-app>.vercel.app`
+- Railway backend: `GOOGLE_CALLBACK_URL=https://<your-railway-app>.railway.app/api/v1/auth/google/callback`
+- Vercel frontend: `VITE_API_URL=https://<your-railway-app>.railway.app/api/v1`
+
+### Deployment Notes
+
+- Vercel should deploy the `client/` folder only.
+- Railway should deploy the `server/` folder only.
+- Uploaded files stored in `server/uploads/` are local filesystem data; if you need persistence across redeploys, move them to external object storage.
 
 ---
 
