@@ -145,7 +145,7 @@ const notifyAdminNewPayment = async (appointment, submission) => {
       </tbody>
     </table>
     <div style="text-align:center;margin-top:24px;">
-      ${btn('Review in Admin Panel', `${process.env.FRONTEND_URL || 'http://localhost:5173'}/admin/payments`)}
+      ${btn('Review in Admin Panel', `${process.env.PUBLIC_FRONTEND_URL || process.env.FRONTEND_URL || ''}/admin/payments`)}
     </div>
   `);
 
@@ -226,7 +226,7 @@ const notifyUserPaymentRejected = async (appointment, submission, reason) => {
       • The amount should match the consultation fee exactly
     </p>
     <div style="text-align:center;margin-top:24px;">
-      ${btn('Book Again', `${process.env.FRONTEND_URL || 'http://localhost:5173'}/book`)}
+      ${btn('Book Again', `${process.env.PUBLIC_FRONTEND_URL || process.env.FRONTEND_URL || ''}/book`)}
     </div>
     <p style="font-size:13px;color:#9ca3af;margin-top:24px;">
       Need help? Call us at <strong>${CLINIC_PHONE}</strong>.
@@ -259,7 +259,7 @@ const notifyUserAppointmentCancelled = async (appointment) => {
       If you have already made payment, please contact us for a refund at <strong>${CLINIC_PHONE}</strong>.
     </p>
     <div style="text-align:center;margin-top:24px;">
-      ${btn('Book New Appointment', `${process.env.FRONTEND_URL || 'http://localhost:5173'}/book`)}
+      ${btn('Book New Appointment', `${process.env.PUBLIC_FRONTEND_URL || process.env.FRONTEND_URL || ''}/book`)}
     </div>
   `);
 

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { store } from '@store/store';
 import { logout, adminLogout, setTokens } from '@store/slices/authSlice';
 
-const DEFAULT_API_URL = 'http://localhost:5000/api/v1';
+const DEFAULT_API_URL = import.meta.env.DEV ? 'http://localhost:5000/api/v1' : '';
 
 const normalizeApiBaseUrl = (value) => {
   if (!value || value.startsWith('/')) {

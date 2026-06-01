@@ -80,7 +80,8 @@ Install [Node.js](https://nodejs.org/) (v18 or higher) and [MongoDB](https://www
 | `EMAIL_PORT` | SMTP port | `587` |
 | `EMAIL_USER` | NodeMailer email sender user | `dr.singhavi.clinic@gmail.com` |
 | `EMAIL_PASS` | Gmail App Password | `xxxx xxxx xxxx xxxx` |
-| `FRONTEND_URL` | CORS allowed origin link | `http://localhost:5173` (Dev) |
+| `FRONTEND_URL` | Public frontend origin used for auth callbacks and email links | `http://localhost:5173` (Dev) |
+| `PUBLIC_FRONTEND_URL` | Optional explicit public frontend origin for production email/auth redirects | `https://your-vercel-app.vercel.app` |
 | `LOCAL_FRONTEND_URL` | Optional comma-separated extra allowed frontend origins | `http://localhost:5173` |
 | `GOOGLE_CLIENT_ID` | OAuth Google Client ID | *(From Google Console)* |
 | `GOOGLE_CLIENT_SECRET`| OAuth Google Secret Key | *(From Google Console)* |

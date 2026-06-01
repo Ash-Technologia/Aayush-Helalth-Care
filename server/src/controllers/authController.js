@@ -384,7 +384,11 @@ setInterval(() => {
  */
 const googleCallback = (req, res, next) => {
   passport.authenticate('google', { session: false }, async (err, user, info) => {
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const frontendUrl = process.env.PUBLIC_FRONTEND_URL || process.env.FRONTEND_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : '');
+
+    if (!frontendUrl) {
+      console.error('[Google OAuth] FRONTEND_URL is not configured. Set PUBLIC_FRONTEND_URL or FRONTEND_URL in production.');
+    }
 
     if (err) {
       console.error('[Google OAuth] Error:', err.message);
