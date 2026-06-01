@@ -83,6 +83,7 @@ Install [Node.js](https://nodejs.org/) (v18 or higher) and [MongoDB](https://www
 | `FRONTEND_URL` | Public frontend origin used for auth callbacks and email links | `http://localhost:5173` (Dev) |
 | `PUBLIC_FRONTEND_URL` | Optional explicit public frontend origin for production email/auth redirects | `https://your-vercel-app.vercel.app` |
 | `LOCAL_FRONTEND_URL` | Optional comma-separated extra allowed frontend origins | `http://localhost:5173` |
+| `PUBLIC_BACKEND_URL` | Optional public backend base URL used to derive the Google OAuth callback | `https://your-render-app.onrender.com` |
 | `GOOGLE_CLIENT_ID` | OAuth Google Client ID | *(From Google Console)* |
 | `GOOGLE_CLIENT_SECRET`| OAuth Google Secret Key | *(From Google Console)* |
 
@@ -104,6 +105,8 @@ VITE_API_URL=https://aayush-backend.railway.app/api/v1
 4. Add all variables listed in the backend configuration to Railway's **Variables** settings, especially:
    - `MONGO_URI` pointing to MongoDB Atlas
    - `FRONTEND_URL` set to your Vercel production domain
+   - `PUBLIC_FRONTEND_URL` set to your Vercel production domain
+   - `PUBLIC_BACKEND_URL` set to your Render/Railway public backend URL
    - `GOOGLE_CALLBACK_URL` set to your Railway callback URL
    - `NODE_ENV=production`
 5. Railway will automatically detect the `Procfile` (`web: node src/index.js`) and spin up the backend instance.
@@ -129,6 +132,8 @@ Use these as a final checklist once both services are live:
 - Railway backend: `NODE_ENV=production`
 - Railway backend: `MONGO_URI=<MongoDB Atlas connection string>`
 - Railway backend: `FRONTEND_URL=https://<your-vercel-app>.vercel.app`
+- Railway backend: `PUBLIC_FRONTEND_URL=https://<your-vercel-app>.vercel.app`
+- Railway backend: `PUBLIC_BACKEND_URL=https://<your-render-app>.onrender.com`
 - Railway backend: `GOOGLE_CALLBACK_URL=https://<your-railway-app>.railway.app/api/v1/auth/google/callback`
 - Vercel frontend: `VITE_API_URL=https://<your-railway-app>.railway.app/api/v1`
 

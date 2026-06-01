@@ -7,10 +7,30 @@ const asyncHandler = require('express-async-handler');
 // NOTE: User model is required lazily inside the strategy callback
 // to avoid circular dependency issues at module load time.
 
+const getGoogleCallbackUrl = () => {
+  if (process.env.GOOGLE_CALLBACK_URL) {
+    return process.env.GOOGLE_CALLBACK_URL;
+  }
+
+  const backendBaseUrl =
+    process.env.PUBLIC_BACKEND_URL ||
+    process.env.RENDER_EXTERNAL_URL ||
+    process.env.BACKEND_URL ||
+    '';
+
+  if (backendBaseUrl) {
+    return `${backendBaseUrl.replace(/\/+$/, '')}/api/v1/auth/google/callback`;
+  }
+
+  return process.env.NODE_ENV === 'development'
+    ? 'http://localhost:5000/api/v1/auth/google/callback'
+    : '';
+};
+
 const initPassport = () => {
   const clientID = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-  const callbackURL = process.env.GOOGLE_CALLBACK_URL;
+  const callbackURL = getGoogleCallbackUrl();
 
   if (!clientID || !clientSecret || !callbackURL) {
     console.warn(
