@@ -87,6 +87,11 @@ Install [Node.js](https://nodejs.org/) (v18 or higher) and [MongoDB](https://www
 | `GOOGLE_CLIENT_ID` | OAuth Google Client ID | *(From Google Console)* |
 | `GOOGLE_CLIENT_SECRET`| OAuth Google Secret Key | *(From Google Console)* |
 
+Google OAuth callback routes supported by the backend:
+
+- `/api/v1/auth/google/callback`
+- `/api/auth/google/callback` for compatibility with existing console setups
+
 ### Frontend Configuration (`client/.env`)
 
 For production cross-origin deploys, create a `.env` file inside `client/`:

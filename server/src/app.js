@@ -14,6 +14,7 @@ const passport = require('passport');
 const path = require('path');
 
 const initPassport = require('./config/passport');
+const authController = require('./controllers/authController');
 
 // ─── Initialize Express ──────────────────────────────────────────────────────
 const app = express();
@@ -111,6 +112,9 @@ mountRoute('/api/v1/payments',           './routes/payments');
 mountRoute('/api/v1/profile',            './routes/profile');
 mountRoute('/api/v1/reviews',            './routes/reviews');
 mountRoute('/api/v1/admin',              './routes/admin/index');
+
+// Google OAuth callback alias for deployments configured with /api/auth/**
+app.get('/api/auth/google/callback', authController.googleCallback);
 
 // ─── 404 Handler ─────────────────────────────────────────────────────────────
 app.use((req, res) => {
