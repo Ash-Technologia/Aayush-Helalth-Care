@@ -60,9 +60,12 @@ export default function RootLayout() {
         <div className={`container ${styles.nav}`}>
 
           <Link to="/" className={styles.logo}>
-            <div className={styles.logoIcon}>🌿</div>
-            <span className={styles.logoName}>
-              Aayush <span>Health Care</span>
+            <span className={styles.logoMark} aria-hidden="true">
+              <span className={styles.logoMarkInner}>AH</span>
+            </span>
+            <span className={styles.logoTextWrap}>
+              <span className={styles.logoName}>Aayush Health Care</span>
+              <span className={styles.logoTagline}>Ayurveda • Acupressure • Neurotherapy</span>
             </span>
           </Link>
 
@@ -139,8 +142,10 @@ export default function RootLayout() {
 
             <div className={styles.footerBrand}>
               <div className={styles.footerLogoRow}>
-                <div className={styles.footerLogoIcon}>🌿</div>
-                <span className={styles.footerLogoText}>Aayush Health Care</span>
+                    <span className={styles.footerLogoMark} aria-hidden="true">
+                      <span className={styles.footerLogoMarkInner}>AH</span>
+                    </span>
+                    <span className={styles.footerLogoText}>Aayush Health Care</span>
               </div>
               <p className={styles.footerTagline}>
                 Amrut Singhavi — Acupressure & Neurotherapy Specialist.<br />

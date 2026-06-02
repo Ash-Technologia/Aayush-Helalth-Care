@@ -12,12 +12,15 @@ const getContent = asyncHandler(async (req, res) => {
 
 // ─── PUT /api/v1/admin/content/hero ──────────────────────────────────────────
 const updateHero = asyncHandler(async (req, res) => {
-  const { headline, subheadline, ctaPrimary, ctaSecondary } = req.body;
+  const { headline, subheadline, ctaPrimary, ctaSecondary, videoUrl, videoPosterUrl, videoTitle } = req.body;
   const updates = {};
   if (headline      !== undefined) updates['hero.headline']      = headline.trim();
   if (subheadline   !== undefined) updates['hero.subheadline']   = subheadline.trim();
   if (ctaPrimary    !== undefined) updates['hero.ctaPrimary']    = ctaPrimary.trim();
   if (ctaSecondary  !== undefined) updates['hero.ctaSecondary']  = ctaSecondary.trim();
+  if (videoUrl      !== undefined) updates['hero.videoUrl']      = videoUrl.trim();
+  if (videoPosterUrl!== undefined) updates['hero.videoPosterUrl']= videoPosterUrl.trim();
+  if (videoTitle    !== undefined) updates['hero.videoTitle']    = videoTitle.trim();
   updates['updatedBy'] = req.dbUser._id;
 
   const content = await WebsiteContent.findOneAndUpdate(

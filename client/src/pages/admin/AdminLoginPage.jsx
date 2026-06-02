@@ -37,7 +37,9 @@ export default function AdminLoginPage() {
       <div className={styles.page}>
         <motion.div className={styles.card} initial={{ opacity:0, y:24 }} animate={{ opacity:1, y:0 }}>
           <div className={styles.logo}>
-            <div className={styles.logoIcon}>🌿</div>
+            <div className={styles.logoMark} aria-hidden="true">
+              <span className={styles.logoMarkInner}>AH</span>
+            </div>
             <div className={styles.logoText}>Admin Panel</div>
             <div className={styles.logoSub}>Aayush Health Care</div>
           </div>

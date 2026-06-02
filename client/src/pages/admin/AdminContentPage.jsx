@@ -10,7 +10,15 @@ export default function AdminContentPage() {
   const [activeTab, setActiveTab] = useState('hero'); // hero, about, seo, services, faqs
 
   // Forms states
-  const [heroForm, setHeroForm] = useState({ headline: '', subheadline: '', ctaPrimary: '', ctaSecondary: '' });
+  const [heroForm, setHeroForm] = useState({
+    headline: '',
+    subheadline: '',
+    ctaPrimary: '',
+    ctaSecondary: '',
+    videoUrl: '',
+    videoPosterUrl: '',
+    videoTitle: '',
+  });
   const [aboutForm, setAboutForm] = useState({ sectionTitle: '', bodyText: '' });
   const [seoForm, setSeoForm] = useState({ metaTitle: '', metaDescription: '', keywordsRaw: '' });
 
@@ -39,6 +47,9 @@ export default function AdminContentPage() {
         subheadline: contentData.hero?.subheadline || '',
         ctaPrimary: contentData.hero?.ctaPrimary || '',
         ctaSecondary: contentData.hero?.ctaSecondary || '',
+        videoUrl: contentData.hero?.videoUrl || '',
+        videoPosterUrl: contentData.hero?.videoPosterUrl || '',
+        videoTitle: contentData.hero?.videoTitle || '',
       });
       setAboutForm({
         sectionTitle: contentData.about?.sectionTitle || '',
@@ -301,6 +312,40 @@ export default function AdminContentPage() {
                     required
                   />
                 </div>
+              </div>
+
+              <div className={styles.formRow}>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="videoUrl">Intro YouTube URL</label>
+                  <input
+                    id="videoUrl"
+                    className="form-input"
+                    value={heroForm.videoUrl}
+                    onChange={(e) => setHeroForm((p) => ({ ...p, videoUrl: e.target.value }))}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="videoTitle">Intro Video Title</label>
+                  <input
+                    id="videoTitle"
+                    className="form-input"
+                    value={heroForm.videoTitle}
+                    onChange={(e) => setHeroForm((p) => ({ ...p, videoTitle: e.target.value }))}
+                    placeholder="Aayush Health Care introduction"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" htmlFor="videoPosterUrl">Video Poster Image URL</label>
+                <input
+                  id="videoPosterUrl"
+                  className="form-input"
+                  value={heroForm.videoPosterUrl}
+                  onChange={(e) => setHeroForm((p) => ({ ...p, videoPosterUrl: e.target.value }))}
+                  placeholder="Optional remote image URL or uploaded profile photo path"
+                />
               </div>
 
               <div className={styles.submitRow}>

@@ -172,17 +172,88 @@
   position: relative;
 }
 
-.heroImageWrap {
-  height: 360px;
+.heroMediaWrap {
+  position: relative;
   background: radial-gradient(circle at top right, #f0fdf4 0%, #ffffff 70%, #ecfeff 100%);
   overflow: hidden;
+  min-height: 360px;
+}
+
+.heroImageWrap {
+  height: 360px;
+  background: transparent;
+  overflow: hidden;
   position: relative;
+}
+
+.heroVideoPoster,
+.heroVideo {
+  display: block;
+  width: 100%;
+  height: 360px;
+}
+
+.heroVideoPoster {
+  position: relative;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.heroVideoPosterImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.heroVideo {
+  border: 0;
+}
+
+.heroVideoOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: linear-gradient(180deg, rgba(13, 18, 33, 0.08), rgba(13, 18, 33, 0.18));
+  color: #ffffff;
+}
+
+.heroVideoPlay {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--clr-green-700);
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow-lg);
+  font-size: 1.4rem;
+}
+
+.heroVideoLabel {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-full);
+  padding: 8px 14px;
+  backdrop-filter: blur(10px);
 }
 
 .heroImage {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: top;
   transition: transform var(--transition-slow);
 }
@@ -498,6 +569,25 @@
 @media (max-width: 950px) {
   .aboutGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .heroMediaWrap,
+  .heroImageWrap,
+  .heroVideoPoster,
+  .heroVideo {
+    min-height: 280px;
+    height: 280px;
+  }
+
+  .heroVideoPlay {
+    width: 56px;
+    height: 56px;
+  }
+
+  .heroVideoLabel {
+    font-size: 0.8rem;
   }
 }
 

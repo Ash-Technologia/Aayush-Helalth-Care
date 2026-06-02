@@ -14,6 +14,9 @@ const heroSchema = new mongoose.Schema(
     },
     ctaPrimary: { type: String, trim: true, default: 'Book Appointment' },
     ctaSecondary: { type: String, trim: true, default: '' },
+    videoUrl: { type: String, trim: true, default: '' },
+    videoPosterUrl: { type: String, trim: true, default: '' },
+    videoTitle: { type: String, trim: true, default: 'Introduction video' },
   },
   { _id: false }
 );

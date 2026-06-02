@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { FiShield } from 'react-icons/fi';
+import { FiPlay, FiShield } from 'react-icons/fi';
 import { profileService, reviewService } from '@services';
 import { resolveBackendAssetUrl } from '@services/api';
 import styles from './HomePage.module.css';
@@ -23,6 +24,36 @@ function EmergencyBanner({ profile }) {
 
 // ── Section: Hero ─────────────────────────────────────────────────
 function HeroSection({ profile, content }) {
+  const [introPlaying, setIntroPlaying] = useState(false);
+
+  const introVideo = useMemo(() => {
+    const raw = content?.hero?.videoUrl || '';
+    if (!raw) return '';
+
+    try {
+      const url = new URL(raw);
+      const host = url.hostname.replace(/^www\./, '');
+      let videoId = '';
+
+      if (host.includes('youtube.com')) {
+        videoId = url.searchParams.get('v') || '';
+        if (!videoId && url.pathname.includes('/embed/')) {
+          videoId = url.pathname.split('/embed/')[1]?.split('/')[0] || '';
+        }
+      } else if (host === 'youtu.be') {
+        videoId = url.pathname.replace(/^\//, '').split('/')[0];
+      }
+
+      return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0` : raw;
+    } catch {
+      return raw;
+    }
+  }, [content?.hero?.videoUrl]);
+
+  const introPoster = resolveBackendAssetUrl(
+    content?.hero?.videoPosterUrl || profile?.imageUrl
+  );
+
   return (
     <section className={styles.hero}>
       <div className={`container ${styles.heroInner}`}>
@@ -78,16 +109,50 @@ function HeroSection({ profile, content }) {
           transition={{ duration: 0.7, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
           <div className={styles.heroCard}>
-            <div className={styles.heroImageWrap}>
-              {profile?.imageUrl
-                ? <img src={resolveBackendAssetUrl(profile.imageUrl)} alt="" className={styles.heroImage} />
-                : <div className={styles.heroImagePlaceholder}>
-                  <div className={styles.placeholderCrest}>
-                    <FiShield size={36} />
+            <div className={styles.heroMediaWrap}>
+              {introPlaying && introVideo ? (
+                <iframe
+                  className={styles.heroVideo}
+                  src={introVideo}
+                  title={content?.hero?.videoTitle || 'Aayush Health Care introduction video'}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  referrerPolicy="strict-origin-when-cross-origin"
+                />
+              ) : introVideo ? (
+                <button
+                  type="button"
+                  className={styles.heroVideoPoster}
+                  onClick={() => setIntroPlaying(true)}
+                  aria-label={content?.hero?.videoTitle || 'Play introduction video'}
+                >
+                  {introPoster ? (
+                    <img src={introPoster} alt="Doctor introduction thumbnail" className={styles.heroVideoPosterImage} />
+                  ) : (
+                    <div className={styles.heroImagePlaceholder}>
+                      <div className={styles.placeholderCrest}>
+                        <FiShield size={36} />
+                      </div>
+                    </div>
+                  )}
+                  <div className={styles.heroVideoOverlay}>
+                    <span className={styles.heroVideoPlay}><FiPlay /></span>
+                    <span className={styles.heroVideoLabel}>Play Introduction</span>
                   </div>
-                  <p></p>
+                </button>
+              ) : (
+                <div className={styles.heroImageWrap}>
+                  {profile?.imageUrl
+                    ? <img src={resolveBackendAssetUrl(profile.imageUrl)} alt="" className={styles.heroImage} />
+                    : <div className={styles.heroImagePlaceholder}>
+                      <div className={styles.placeholderCrest}>
+                        <FiShield size={36} />
+                      </div>
+                      <p></p>
+                    </div>
+                  }
                 </div>
-              }
+              )}
             </div>
             <div className={styles.heroCardInfo}>
               <div className={styles.heroCardName}>Amrut Singhavi</div>

@@ -32,7 +32,9 @@ export default function AdminLayout() {
       {/* ─── Sidebar ───────────────────────────────────────── */}
       <aside className={styles.sidebar}>
         <div className={styles.sidebarLogo}>
-          <div className={styles.logoIcon}>🌿</div>
+          <div className={styles.logoMark} aria-hidden="true">
+            <span className={styles.logoMarkInner}>AH</span>
+          </div>
           <div>
             <div className={styles.logoText}>Aayush</div>
             <div className={styles.logoSub}>Admin Panel</div>

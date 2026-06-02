@@ -136,7 +136,9 @@ export default function AuthPage() {
         >
           {/* Logo */}
           <div className={styles.logoWrap}>
-            <div className={styles.logoIcon}>🌿</div>
+            <div className={styles.logoMark} aria-hidden="true">
+              <span className={styles.logoMarkInner}>AH</span>
+            </div>
             <div className={styles.logoText}>Aayush Health Care</div>
             <div className={styles.logoSub}>Amrut Singhavi — Ayurvedic Consultancy</div>
           </div>
