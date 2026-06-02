@@ -410,16 +410,18 @@
 }
 
 .qrImage {
-  width: 340px;
-  height: 340px;
+  width: min(340px, 100%);
+  height: auto;
+  aspect-ratio: 1 / 1;
   object-fit: contain;
   margin: 12px auto;
   border-radius: 12px;
 }
 
 .qrPlaceholder {
-  width: 340px;
-  height: 340px;
+  width: min(340px, 100%);
+  height: auto;
+  aspect-ratio: 1 / 1;
   background: var(--bg-surface);
   border: 2px dashed var(--border-default);
   border-radius: 12px;
@@ -616,6 +618,30 @@
   border-color: var(--clr-green-400);
   background: var(--clr-green-50);
   transform: translateY(-2px);
+}
+
+@media (max-width: 560px) {
+  .qrImage,
+  .qrPlaceholder {
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .navBtns {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .navBtns .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .qrImage,
+  .qrPlaceholder {
+    max-width: 240px;
+  }
 }
 
 .reasonCard input[type='radio'] {

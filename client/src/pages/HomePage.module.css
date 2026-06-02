@@ -1134,9 +1134,16 @@
 
 .testimonialGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
   margin-top: 3rem;
+}
+
+@media (max-width: 640px) {
+  .testimonialGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 }
 
 .testimonialCard {

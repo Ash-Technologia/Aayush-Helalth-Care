@@ -124,7 +124,32 @@
 
 @media (max-width: 768px) {
   .root { flex-direction: column; }
-  .sidebar { width: 100%; height: auto; position: static; flex-direction: row; overflow-x: auto; }
-  .sidebarNav { flex-direction: row; padding: 8px; overflow-x: auto; }
-  .sidebarFooter { display: none; }
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: static;
+    overflow: visible;
+  }
+  .sidebarLogo {
+    padding: 16px 16px 12px;
+  }
+  .sidebarNav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 10px 12px;
+  }
+  .navItem {
+    flex: 1 1 calc(50% - 4px);
+    justify-content: center;
+  }
+  .sidebarFooter {
+    padding: 12px;
+  }
+  .content { padding: 16px; }
+}
+
+@media (max-width: 480px) {
+  .navItem {
+    flex-basis: 100%;
+  }
 }

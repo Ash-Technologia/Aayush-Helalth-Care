@@ -143,9 +143,14 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  overflow-wrap: anywhere;
 }
 
-img, svg, video { display: block; max-width: 100%; }
+img, svg, video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
 button { cursor: pointer; border: none; background: none; font-family: inherit; }
 a { text-decoration: none; color: inherit; }
 ul, ol { list-style: none; }
@@ -169,6 +174,16 @@ input, textarea, select {
   max-width: var(--container-max);
   margin-inline: auto;
   padding-inline: clamp(20px, 5vw, 64px);
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding-inline: 16px;
+  }
+
+  .section {
+    padding-block: 56px;
+  }
 }
 
 .section {
