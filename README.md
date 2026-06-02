@@ -158,3 +158,28 @@ To log into the Admin panel:
    - **Email**: `admin@clinic.in`
    - **Password**: `Admin@123`
 3. Upon first login, change the doctor credentials, upload your UPI QR code, and update Timings in **Profile Settings** to initialize bookings slots.
+
+---
+
+## 🎨 Manual Logo + YouTube Link Update (Code)
+
+If you want to update branding/content directly in code:
+
+1. **Logo image (header + footer)**
+   - File: `client/src/components/layout/RootLayout.jsx`
+   - Constant to edit: `MANUAL_LOGO_IMAGE_PATH`
+   - Current value: `'/favicon.svg'`
+   - Add your image in `client/public/` (for example `client/public/logo.png`) and set:
+     ```js
+     const MANUAL_LOGO_IMAGE_PATH = '/logo.png';
+     ```
+
+2. **Hero intro YouTube video**
+   - File: `client/src/pages/HomePage.jsx`
+   - Edit inside `HeroSection` where `introVideo` is prepared from `content?.hero?.videoUrl`.
+   - You can set your link from admin CMS, or hardcode your own YouTube link there.
+
+3. **Patient testimonial YouTube videos**
+   - File: `client/src/pages/HomePage.jsx`
+   - Section: `TestimonialsSection`
+   - Edit the `testimonials` array (`videoUrl` values) with your own YouTube embed links.

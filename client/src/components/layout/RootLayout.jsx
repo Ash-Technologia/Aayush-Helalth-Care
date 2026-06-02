@@ -12,6 +12,7 @@ const NAV_LINKS = [
   { label: 'Book Appointment', to: '/book' },
   { label: 'My Bookings', to: '/appointments', auth: true },
 ];
+const MANUAL_LOGO_IMAGE_PATH = '/favicon.svg';
 
 export default function RootLayout() {
   const dispatch = useDispatch();
@@ -61,7 +62,7 @@ export default function RootLayout() {
 
           <Link to="/" className={styles.logo}>
             <span className={styles.logoMark} aria-hidden="true">
-              <span className={styles.logoMarkInner}>AH</span>
+              <img src={MANUAL_LOGO_IMAGE_PATH} alt="" className={styles.logoImage} />
             </span>
             <span className={styles.logoTextWrap}>
               <span className={styles.logoName}>Aayush Health Care</span>
@@ -143,7 +144,7 @@ export default function RootLayout() {
             <div className={styles.footerBrand}>
               <div className={styles.footerLogoRow}>
                     <span className={styles.footerLogoMark} aria-hidden="true">
-                      <span className={styles.footerLogoMarkInner}>AH</span>
+                    <img src={MANUAL_LOGO_IMAGE_PATH} alt="" className={styles.footerLogoImage} />
                     </span>
                     <span className={styles.footerLogoText}>Aayush Health Care</span>
               </div>
