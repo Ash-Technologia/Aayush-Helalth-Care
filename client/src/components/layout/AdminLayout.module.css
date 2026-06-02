@@ -175,3 +175,10 @@
     flex-basis: 100%;
   }
 }
+
+.logoImage {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  border-radius: 12px;
+}

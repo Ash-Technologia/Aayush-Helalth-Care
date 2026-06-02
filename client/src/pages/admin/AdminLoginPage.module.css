@@ -36,3 +36,10 @@
 .logoSub  { font-size: 0.8rem; color: var(--text-muted); }
 .title { font-size: 1.375rem; font-weight: 700; color: var(--text-primary); margin-bottom: 20px; }
 .form { display: flex; flex-direction: column; gap: 18px; }
+
+.logoImage {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  margin-bottom: 12px;
+}

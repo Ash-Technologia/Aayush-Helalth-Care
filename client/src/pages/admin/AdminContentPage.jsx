@@ -337,17 +337,6 @@ export default function AdminContentPage() {
                 </div>
               </div>
 
-              <div className="form-group">
-                <label className="form-label" htmlFor="videoPosterUrl">Video Poster Image URL</label>
-                <input
-                  id="videoPosterUrl"
-                  className="form-input"
-                  value={heroForm.videoPosterUrl}
-                  onChange={(e) => setHeroForm((p) => ({ ...p, videoPosterUrl: e.target.value }))}
-                  placeholder="Optional remote image URL or uploaded profile photo path"
-                />
-              </div>
-
               <div className={styles.submitRow}>
                 <button type="submit" className="btn btn-primary" disabled={updateHeroMutation.isPending}>
                   {updateHeroMutation.isPending ? 'Saving...' : 'Update Landing Banner'}

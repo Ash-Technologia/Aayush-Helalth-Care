@@ -60,14 +60,24 @@ export default function RootLayout() {
         <div className={`container ${styles.nav}`}>
 
           <Link to="/" className={styles.logo}>
-            <span className={styles.logoMark} aria-hidden="true">
-              <span className={styles.logoMarkInner}>AH</span>
-            </span>
-            <span className={styles.logoTextWrap}>
-              <span className={styles.logoName}>Aayush Health Care</span>
-              <span className={styles.logoTagline}>Ayurveda • Acupressure • Neurotherapy</span>
-            </span>
-          </Link>
+  <img
+    src="/logo.png"
+    alt="Aayush Health Care"
+    className={styles.logoImage}
+  />
+
+  <span className={styles.logoTextWrap}>
+    <span className={styles.logoName}>
+      Aayush Health Care
+    </span>
+
+    <span className={styles.logoTagline}>
+      Ayurveda • Acupressure •
+      Neurotherapy
+    </span>
+  </span>
+</Link>
+
 
           {/* Desktop nav */}
           <nav className={styles.desktopNav}>
@@ -142,11 +152,16 @@ export default function RootLayout() {
 
             <div className={styles.footerBrand}>
               <div className={styles.footerLogoRow}>
-                    <span className={styles.footerLogoMark} aria-hidden="true">
-                      <span className={styles.footerLogoMarkInner}>AH</span>
-                    </span>
-                    <span className={styles.footerLogoText}>Aayush Health Care</span>
-              </div>
+  <img
+    src="/logo.png"
+    alt="Aayush Health Care"
+    className={styles.footerLogoImage}
+  />
+
+  <span className={styles.footerLogoText}>
+    Aayush Health Care
+  </span>
+</div>
               <p className={styles.footerTagline}>
                 Amrut Singhavi — Acupressure & Neurotherapy Specialist.<br />
                 Healing naturally, guided by science.

@@ -401,3 +401,15 @@
     align-items: flex-start;
   }
 }
+
+.logoImage {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+
+.footerLogoImage {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+}
