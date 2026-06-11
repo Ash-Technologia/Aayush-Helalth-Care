@@ -1,6 +1,10 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectAdmin, adminLogout } from '@store/slices/authSlice';
+import { useQuery } from '@tanstack/react-query';
+import { profileService } from '@services';
+import { resolveBackendAssetUrl } from '@services/api';
+import { Helmet } from 'react-helmet-async';
 import toast from 'react-hot-toast';
 import styles from './AdminLayout.module.css';
 
@@ -20,6 +24,13 @@ export default function AdminLayout() {
   const location = useLocation();
   const user = useSelector(selectAdmin);
 
+  const { data: profileData } = useQuery({
+    queryKey: ['doctorProfile'],
+    queryFn: () => profileService.getDoctorProfile().then((r) => r.data.data),
+  });
+  const profile = profileData?.profile || profileData;
+  const logoUrl = profile?.imageUrl ? resolveBackendAssetUrl(profile.imageUrl) : '/logo.png';
+
   const handleLogout = async () => {
     dispatch(adminLogout());
     toast.success('Signed out.');
@@ -28,10 +39,15 @@ export default function AdminLayout() {
 
   return (
     <div className={styles.root}>
+      <Helmet>
+        {profile?.imageUrl && (
+          <link rel="icon" type="image/jpeg" href={logoUrl} />
+        )}
+      </Helmet>
       <aside className={styles.sidebar}>
         <div className={styles.sidebarLogo}>
           <img
-            src="/logo.png"
+            src={logoUrl}
             alt="Aayush Health Care"
             className={styles.logoImage}
             onError={(e) => { e.target.style.display = 'none'; }}

@@ -3,14 +3,23 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
+import { adminService, profileService } from '@services';
+import { resolveBackendAssetUrl } from '@services/api';
 import toast from 'react-hot-toast';
-import { adminService } from '@services';
 import { setCredentials } from '@store/slices/authSlice';
 import styles from './AdminLoginPage.module.css';
 
 export default function AdminLoginPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const { data: profileData } = useQuery({
+    queryKey: ['doctorProfile'],
+    queryFn: () => profileService.getDoctorProfile().then((r) => r.data.data),
+  });
+  const profile = profileData?.profile || profileData;
+  const logoUrl = profile?.imageUrl ? resolveBackendAssetUrl(profile.imageUrl) : '/logo.png';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] =
@@ -64,10 +73,10 @@ export default function AdminLoginPage() {
   return (
     <>
       <Helmet>
-        <title>
-          Admin Login — Aayush Health
-          Care
-        </title>
+        <title>Admin Login — Aayush Health Care</title>
+        {profile?.imageUrl && (
+          <link rel="icon" type="image/jpeg" href={logoUrl} />
+        )}
       </Helmet>
 
       <div className={styles.page}>
@@ -78,7 +87,7 @@ export default function AdminLoginPage() {
         >
           <div className={styles.logo}>
             <img
-              src="/logo.png"
+              src={logoUrl}
               alt="Aayush Health Care"
               className={styles.logoImage}
               onError={(e) => { e.target.style.display = 'none'; }}

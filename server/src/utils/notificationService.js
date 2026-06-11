@@ -257,6 +257,21 @@ const notifyUserNoShow = async (appointment) => {
   });
 };
 
+/**
+ * Fired as a daily cron reminder.
+ * Notifies patient via email + SMS.
+ */
+const notifyUserAppointmentReminder = async (appointment) => {
+  return fireAll({
+    userId:        appointment.user,
+    appointmentId: appointment._id,
+    type:          'appointment_reminder',
+    emailFn:       () => emailService.notifyUserAppointmentReminder(appointment),
+    smsFn:         () => smsService.smsUserReminder(appointment),
+    payload: { patientEmail: appointment.patientEmail, patientPhone: appointment.patientPhone },
+  });
+};
+
 module.exports = {
   notifyAdminNewPayment,
   notifyUserPaymentApproved,

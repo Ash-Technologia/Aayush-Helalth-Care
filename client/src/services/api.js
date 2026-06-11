@@ -34,6 +34,16 @@ export const getBackendOrigin = () => {
 
 export const resolveBackendAssetUrl = (url) => {
   if (!url) return '';
+
+  // Convert Google Drive viewer links to direct image/thumbnail links
+  if (/drive\.google\.com/i.test(url)) {
+    const match = url.match(/drive\.google\.com\/(?:file\/d\/|uc\?(?:.*&)?id=|open\?id=)([^/?#&]+)/);
+    if (match && match[1]) {
+      const fileId = match[1];
+      return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+    }
+  }
+
   if (/^https?:\/\//i.test(url)) return url;
 
   const origin = getBackendOrigin();

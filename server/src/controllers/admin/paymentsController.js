@@ -48,7 +48,7 @@ const listPayments = asyncHandler(async (req, res) => {
         as:           'appointmentData',
       },
     },
-    { $unwind: { path: '$appointmentData', preserveNullAndEmpty: true } },
+    { $unwind: { path: '$appointmentData', preserveNullAndEmptyArrays: true } },
 
     // 3. Join users
     {
@@ -59,7 +59,7 @@ const listPayments = asyncHandler(async (req, res) => {
         as:           'userData',
       },
     },
-    { $unwind: { path: '$userData', preserveNullAndEmpty: true } },
+    { $unwind: { path: '$userData', preserveNullAndEmptyArrays: true } },
 
     // 4. Join adminReviewedBy
     {
@@ -70,7 +70,7 @@ const listPayments = asyncHandler(async (req, res) => {
         as:           'adminReviewedByData',
       },
     },
-    { $unwind: { path: '$adminReviewedByData', preserveNullAndEmpty: true } },
+    { $unwind: { path: '$adminReviewedByData', preserveNullAndEmptyArrays: true } },
 
     // 5. Apply search filter (on joined fields) — this is what makes pagination correct
     ...(searchTerm ? [{ $match: searchFilter }] : []),

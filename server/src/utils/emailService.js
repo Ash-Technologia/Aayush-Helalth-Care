@@ -9,21 +9,36 @@ let _transporter = null;
 const getTransporter = () => {
   if (_transporter) return _transporter;
 
-  const { EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS, EMAIL_SECURE } = process.env;
+  const {
+    SMTP_HOST,
+    SMTP_PORT,
+    SMTP_USER,
+    SMTP_PASS,
+    EMAIL_HOST,
+    EMAIL_PORT,
+    EMAIL_USER,
+    EMAIL_PASS,
+    EMAIL_SECURE
+  } = process.env;
 
-  // Dev mode: use Ethereal (nodemailer test account) or console fallback
-  if (!EMAIL_USER || EMAIL_USER.startsWith('REPLACE_')) {
+  const host = SMTP_HOST || EMAIL_HOST || 'smtp.gmail.com';
+  const port = parseInt(SMTP_PORT || EMAIL_PORT || '587', 10);
+  const user = SMTP_USER || EMAIL_USER;
+  const pass = SMTP_PASS || EMAIL_PASS;
+
+  // Dev mode: use console fallback
+  if (!user || user.startsWith('REPLACE_')) {
     console.log('[Email] Not configured — using console fallback (dev mode).');
     return null;
   }
 
   _transporter = nodemailer.createTransport({
-    host:   EMAIL_HOST   || 'smtp.gmail.com',
-    port:   parseInt(EMAIL_PORT || '587', 10),
-    secure: EMAIL_SECURE === 'true', // true for port 465, false for 587 (TLS)
+    host,
+    port,
+    secure: EMAIL_SECURE === 'true' || port === 465, // true for port 465, false for 587 (TLS)
     auth: {
-      user: EMAIL_USER,
-      pass: EMAIL_PASS,
+      user,
+      pass,
     },
     tls: {
       rejectUnauthorized: process.env.NODE_ENV === 'production',
@@ -37,7 +52,7 @@ const getTransporter = () => {
 const CLINIC_NAME     = 'Aayush Health Care';
 const CLINIC_TAGLINE  = 'Amrut Singhavi — Acupressure & Neurotherapy Specialist';
 const CLINIC_PHONE    = process.env.CLINIC_PHONE || '+91 98228 43015';
-const CLINIC_EMAIL    = process.env.EMAIL_FROM   || 'noreply@aayushhealthcare.in';
+const CLINIC_EMAIL    = process.env.SMTP_FROM || process.env.SMTP_USER || process.env.EMAIL_FROM || 'noreply@aayushhealthcare.in';
 const CLINIC_COLOR    = '#0d9488'; // teal-600
 
 const wrapHtml = (title, bodyHtml) => `

@@ -3,7 +3,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { selectIsAuth, selectUser, logout } from '@store/slices/authSlice';
 import { toggleMobileMenu, closeMobileMenu, selectMobileMenuOpen } from '@store/slices/uiSlice';
-import { authService } from '@services';
+import { authService, profileService } from '@services';
+import { useQuery } from '@tanstack/react-query';
+import { resolveBackendAssetUrl } from '@services/api';
+import { Helmet } from 'react-helmet-async';
 import toast from 'react-hot-toast';
 import styles from './RootLayout.module.css';
 
@@ -21,6 +24,13 @@ export default function RootLayout() {
   const menuOpen = useSelector(selectMobileMenuOpen);
   // refreshToken is stored separately in state.auth.refreshToken, not inside the user object
   const refreshToken = useSelector((state) => state.auth.refreshToken);
+
+  const { data: profileData } = useQuery({
+    queryKey: ['doctorProfile'],
+    queryFn: () => profileService.getDoctorProfile().then((r) => r.data.data),
+  });
+  const profile = profileData?.profile || profileData;
+  const logoUrl = profile?.imageUrl ? resolveBackendAssetUrl(profile.imageUrl) : '/logo.png';
 
   useEffect(() => { dispatch(closeMobileMenu()); }, [location.pathname, dispatch]);
 
@@ -56,13 +66,18 @@ export default function RootLayout() {
 
   return (
     <div className={styles.root}>
+      <Helmet>
+        {profile?.imageUrl && (
+          <link rel="icon" type="image/jpeg" href={logoUrl} />
+        )}
+      </Helmet>
       {/* ─── Header ─────────────────────────────────────────── */}
       <header className={styles.header}>
         <div className={`container ${styles.nav}`}>
 
           <Link to="/" className={styles.logo}>
   <img
-    src="/logo.png"
+    src={logoUrl}
     alt="Aayush Health Care"
     className={styles.logoImage}
     onError={(e) => { e.target.style.display = 'none'; }}
@@ -155,7 +170,7 @@ export default function RootLayout() {
             <div className={styles.footerBrand}>
               <div className={styles.footerLogoRow}>
   <img
-    src="/logo.png"
+    src={logoUrl}
     alt="Aayush Health Care"
     className={styles.footerLogoImage}
     onError={(e) => { e.target.style.display = 'none'; }}
