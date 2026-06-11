@@ -486,6 +486,15 @@ const requestOtp = asyncHandler(async (req, res) => {
 
   const phone = isPhone ? cleanId.replace(/\D/g, '') : null;
 
+  // Check if this is a new user (used by frontend for welcome message only — lightweight lean query)
+  let existingUser;
+  if (isEmail) {
+    existingUser = await User.findOne({ email: cleanId }).select('_id').lean();
+  } else {
+    existingUser = await User.findOne({ phone }).select('_id').lean();
+  }
+  const isNewUser = !existingUser;
+
   // Prevent OTP spam: check if one was sent less than 60 seconds ago
   if (await otpStore.hasPendingOtp(cleanId)) {
     const ttl = await otpStore.getOtpTtlSeconds(cleanId);
@@ -531,8 +540,8 @@ const requestOtp = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: `OTP sent successfully.`,
-    data: {},
+    message: 'OTP sent successfully.',
+    data: { isNewUser },
     ...(process.env.NODE_ENV === 'development' && { _devOtp: otp }),
   });
 });

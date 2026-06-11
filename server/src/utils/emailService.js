@@ -302,6 +302,198 @@ const notifyUserAppointmentReminder = async (appointment) => {
   });
 };
 
+// ─── 6. User: Slot locked — payment pending ──────────────────────────────────
+const notifyUserSlotLocked = async (appointment, profile) => {
+  if (!appointment.patientEmail) return { success: false, reason: 'No patient email' };
+
+  const dateStr = new Date(appointment.appointmentDate).toLocaleDateString('en-IN', {
+    weekday: 'long', day: '2-digit', month: 'long', year: 'numeric',
+  });
+  const qrUrl = profile?.payment?.qrImageUrl
+    ? `${process.env.BACKEND_URL || ''}${profile.payment.qrImageUrl}`
+    : null;
+  const upiId = profile?.payment?.upiId || 'Contact clinic for UPI details';
+  const fee   = appointment.feeSnapshot || profile?.consultationFee || 500;
+
+  const html = wrapHtml('Complete Your Payment', `
+    <h2 style="margin:0 0 8px;font-size:20px;color:#111827;">Your Slot is Reserved! 🎉</h2>
+    <p style="margin:0 0 20px;font-size:14px;color:#6b7280;">
+      Your slot has been reserved for <strong>30 minutes</strong>. Please complete payment to confirm.
+    </p>
+    <table cellpadding="0" cellspacing="0" style="width:100%;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:24px;">
+      <tbody style="background:#f9fafb;">
+        ${infoRow('Patient', appointment.patientName)}
+        ${infoRow('Date', dateStr)}
+        ${infoRow('Time', `${appointment.slotStart} – ${appointment.slotEnd}`)}
+        ${infoRow('Type', appointment.consultationType === 'online' ? '🎥 Online' : '🏥 In-Clinic')}
+        ${infoRow('Amount to Pay', `₹${fee}`)}
+      </tbody>
+    </table>
+    <p style="font-size:14px;color:#111827;font-weight:600;">How to pay:</p>
+    ${qrUrl ? `
+      <p style="font-size:14px;color:#6b7280;">Scan the QR code below with any UPI app to pay ₹${fee}:</p>
+      <div style="text-align:center;margin:16px 0;">
+        <img src="${qrUrl}" alt="UPI QR Code" style="max-width:200px;border-radius:8px;border:1px solid #e5e7eb;" />
+      </div>
+    ` : `
+      <p style="font-size:14px;color:#6b7280;">Pay via UPI — <strong>UPI ID: ${upiId}</strong> — using any UPI app (GPay, PhonePe, Paytm).</p>
+    `}
+    <p style="font-size:14px;color:#6b7280;">After payment, upload your screenshot on the website to confirm your booking.</p>
+    <div style="text-align:center;margin-top:24px;">
+      ${btn('Upload Payment Screenshot', `${process.env.PUBLIC_FRONTEND_URL || process.env.FRONTEND_URL || ''}/appointments`)}
+    </div>
+    <p style="font-size:13px;color:#ef4444;margin-top:20px;">⚠️ Your slot will be released if payment is not uploaded within 30 minutes.</p>
+  `);
+
+  return sendEmail({
+    to: appointment.patientEmail,
+    subject: `Complete Payment to Confirm Your Appointment — ₹${fee}`,
+    html,
+  });
+};
+
+// ─── 7. Admin: User cancelled their own appointment ────────────────────────────
+const notifyAdminUserCancelled = async (appointment) => {
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (!adminEmail) return { success: false, reason: 'ADMIN_EMAIL not configured' };
+
+  const html = wrapHtml('Patient Cancelled Appointment', `
+    <h2 style="margin:0 0 8px;font-size:20px;color:#111827;">Patient Cancelled Appointment</h2>
+    <p style="margin:0 0 20px;font-size:14px;color:#6b7280;">A patient has cancelled their appointment. The slot is now free.</p>
+    <table cellpadding="0" cellspacing="0" style="width:100%;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
+      <tbody style="background:#f9fafb;">
+        ${infoRow('Patient', appointment.patientName)}
+        ${infoRow('Phone', appointment.patientPhone || '—')}
+        ${infoRow('Date', new Date(appointment.appointmentDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }))}
+        ${infoRow('Time', `${appointment.slotStart} – ${appointment.slotEnd}`)}
+        ${infoRow('Type', appointment.consultationType === 'online' ? '🎥 Online' : '🏥 In-Clinic')}
+        ${appointment.cancellationReason ? infoRow('Reason', appointment.cancellationReason) : ''}
+      </tbody>
+    </table>
+  `);
+
+  return sendEmail({
+    to: adminEmail,
+    subject: `[Cancellation] ${appointment.patientName} cancelled their appointment`,
+    html,
+  });
+};
+
+// ─── 8. User: Appointment rescheduled ─────────────────────────────────────────
+const notifyUserRescheduled = async (appointment) => {
+  if (!appointment.patientEmail) return { success: false, reason: 'No patient email' };
+
+  const dateStr = new Date(appointment.appointmentDate).toLocaleDateString('en-IN', {
+    weekday: 'long', day: '2-digit', month: 'long', year: 'numeric',
+  });
+
+  const html = wrapHtml('Appointment Rescheduled', `
+    <h2 style="margin:0 0 8px;font-size:20px;color:#111827;">Your Appointment Has Been Rescheduled 📅</h2>
+    <p style="margin:0 0 20px;font-size:14px;color:#6b7280;">Your appointment has been moved to the following new slot:</p>
+    <table cellpadding="0" cellspacing="0" style="width:100%;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:24px;">
+      <tbody style="background:#f9fafb;">
+        ${infoRow('New Date', dateStr)}
+        ${infoRow('New Time', `${appointment.slotStart} – ${appointment.slotEnd}`)}
+        ${infoRow('Type', appointment.consultationType === 'online' ? '🎥 Online' : '🏥 In-Clinic')}
+        ${infoRow('Patient', appointment.patientName)}
+      </tbody>
+    </table>
+    <p style="font-size:13px;color:#9ca3af;">For queries, call us at <strong>${CLINIC_PHONE}</strong>.</p>
+  `);
+
+  return sendEmail({
+    to: appointment.patientEmail,
+    subject: `Appointment Rescheduled — New slot: ${dateStr} at ${appointment.slotStart}`,
+    html,
+  });
+};
+
+// ─── 9. Admin: Appointment rescheduled (with old slot info) ───────────────────
+const notifyAdminRescheduled = async (appointment, oldSlot) => {
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (!adminEmail) return { success: false, reason: 'ADMIN_EMAIL not configured' };
+
+  const fmtDate = (d) => new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+
+  const html = wrapHtml('Appointment Rescheduled by Patient', `
+    <h2 style="margin:0 0 8px;font-size:20px;color:#111827;">Patient Rescheduled Appointment</h2>
+    <p style="margin:0 0 20px;font-size:14px;color:#6b7280;">${appointment.patientName} has rescheduled their appointment.</p>
+    <table cellpadding="0" cellspacing="0" style="width:100%;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:16px;">
+      <tbody style="background:#fef9c3;">
+        <tr><td colspan="2" style="padding:8px 12px;font-size:12px;font-weight:700;color:#92400e;">OLD SLOT</td></tr>
+        ${infoRow('Date', oldSlot?.oldDate ? fmtDate(oldSlot.oldDate) : '—')}
+        ${infoRow('Time', oldSlot?.oldSlotStart ? `${oldSlot.oldSlotStart} – ${oldSlot.oldSlotEnd}` : '—')}
+      </tbody>
+    </table>
+    <table cellpadding="0" cellspacing="0" style="width:100%;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
+      <tbody style="background:#d1fae5;">
+        <tr><td colspan="2" style="padding:8px 12px;font-size:12px;font-weight:700;color:#065f46;">NEW SLOT</td></tr>
+        ${infoRow('Date', fmtDate(appointment.appointmentDate))}
+        ${infoRow('Time', `${appointment.slotStart} – ${appointment.slotEnd}`)}
+        ${infoRow('Type', appointment.consultationType === 'online' ? '🎥 Online' : '🏥 In-Clinic')}
+        ${infoRow('Patient', appointment.patientName)}
+        ${infoRow('Phone', appointment.patientPhone || '—')}
+      </tbody>
+    </table>
+  `);
+
+  return sendEmail({
+    to: adminEmail,
+    subject: `[Reschedule] ${appointment.patientName} moved their appointment`,
+    html,
+  });
+};
+
+// ─── 10. User: Appointment completed ─────────────────────────────────────────
+const notifyUserCompleted = async (appointment) => {
+  if (!appointment.patientEmail) return { success: false, reason: 'No patient email' };
+
+  const html = wrapHtml('Thank You for Visiting!', `
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="display:inline-block;background:#d1fae5;border-radius:50%;width:64px;height:64px;line-height:64px;font-size:28px;">🙏</div>
+    </div>
+    <h2 style="margin:0 0 8px;font-size:20px;color:#111827;text-align:center;">Thank You for Visiting Aayush Health Care</h2>
+    <p style="margin:0 0 20px;font-size:14px;color:#6b7280;text-align:center;">
+      We hope your appointment on <strong>${new Date(appointment.appointmentDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'long' })}</strong> was helpful.
+    </p>
+    <p style="font-size:14px;color:#6b7280;">We'd love to hear about your experience. A quick review helps other patients find us:</p>
+    <div style="text-align:center;margin-top:16px;">
+      ${btn('Leave a Review', `${process.env.PUBLIC_FRONTEND_URL || process.env.FRONTEND_URL || ''}/reviews`)}
+    </div>
+    <p style="font-size:13px;color:#9ca3af;margin-top:24px;">For follow-up queries, call <strong>${CLINIC_PHONE}</strong>.</p>
+  `);
+
+  return sendEmail({
+    to: appointment.patientEmail,
+    subject: `Thank You ${appointment.patientName.split(' ')[0]}! We'd Love Your Feedback 🙏`,
+    html,
+  });
+};
+
+// ─── 11. User: Marked as No-Show ──────────────────────────────────────────────
+const notifyUserNoShow = async (appointment) => {
+  if (!appointment.patientEmail) return { success: false, reason: 'No patient email' };
+
+  const html = wrapHtml('Missed Appointment Notice', `
+    <h2 style="margin:0 0 8px;font-size:20px;color:#111827;">We Missed You Today</h2>
+    <p style="margin:0 0 16px;font-size:14px;color:#6b7280;">
+      Your appointment on <strong>${new Date(appointment.appointmentDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</strong>
+      at <strong>${appointment.slotStart}</strong> was marked as <strong>No-Show</strong> as you were not present.
+    </p>
+    <p style="font-size:14px;color:#6b7280;">If this was an error or you faced an emergency, please contact us:</p>
+    <p style="font-size:14px;color:#111827;font-weight:600;">${CLINIC_PHONE}</p>
+    <div style="text-align:center;margin-top:24px;">
+      ${btn('Book a New Appointment', `${process.env.PUBLIC_FRONTEND_URL || process.env.FRONTEND_URL || ''}/book`)}
+    </div>
+  `);
+
+  return sendEmail({
+    to: appointment.patientEmail,
+    subject: `Missed Appointment — ${new Date(appointment.appointmentDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })} at ${appointment.slotStart}`,
+    html,
+  });
+};
+
 module.exports = {
   sendEmail,
   notifyAdminNewPayment,
@@ -309,4 +501,10 @@ module.exports = {
   notifyUserPaymentRejected,
   notifyUserAppointmentCancelled,
   notifyUserAppointmentReminder,
+  notifyUserSlotLocked,
+  notifyAdminUserCancelled,
+  notifyUserRescheduled,
+  notifyAdminRescheduled,
+  notifyUserCompleted,
+  notifyUserNoShow,
 };

@@ -68,7 +68,8 @@ export default function AdminSlotsPage() {
       queryClient.invalidateQueries(['adminTemplates']);
     },
     onError: (err) => {
-      toast.error(err.response?.data?.message || 'Failed to create template.');
+      const msg = err.response?.data?.errors?.[0]?.msg || err.response?.data?.message || 'Failed to create template.';
+      toast.error(msg);
     },
   });
 
@@ -79,7 +80,8 @@ export default function AdminSlotsPage() {
       queryClient.invalidateQueries(['adminTemplates']);
     },
     onError: (err) => {
-      toast.error(err.response?.data?.message || 'Failed to remove template.');
+      const msg = err.response?.data?.errors?.[0]?.msg || err.response?.data?.message || 'Failed to remove template.';
+      toast.error(msg);
     },
   });
 
@@ -94,7 +96,8 @@ export default function AdminSlotsPage() {
       queryClient.invalidateQueries(['adminHolidays']);
     },
     onError: (err) => {
-      toast.error(err.response?.data?.message || 'Failed to schedule holiday.');
+      const msg = err.response?.data?.errors?.[0]?.msg || err.response?.data?.message || 'Failed to schedule holiday.';
+      toast.error(msg);
     },
   });
 
@@ -105,7 +108,8 @@ export default function AdminSlotsPage() {
       queryClient.invalidateQueries(['adminHolidays']);
     },
     onError: (err) => {
-      toast.error(err.response?.data?.message || 'Failed to remove holiday.');
+      const msg = err.response?.data?.errors?.[0]?.msg || err.response?.data?.message || 'Failed to remove holiday.';
+      toast.error(msg);
     },
   });
 

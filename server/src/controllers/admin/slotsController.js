@@ -70,7 +70,7 @@ const updateTemplate = asyncHandler(async (req, res) => {
     return res.status(400).json({ success: false, message: 'Invalid template ID.' });
   }
 
-  const allowed = ['startTime', 'endTime', 'slotDurationMins', 'consultationType', 'isActive', 'maxSlots', 'notes'];
+  const allowed = ['label', 'startTime', 'endTime', 'slotDurationMins', 'consultationType', 'isActive', 'maxSlots', 'notes'];
   const updates = {};
   for (const key of allowed) {
     if (req.body[key] !== undefined) updates[key] = req.body[key];

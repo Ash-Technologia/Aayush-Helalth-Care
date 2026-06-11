@@ -120,6 +120,14 @@ const completeAppointment = asyncHandler(async (req, res) => {
   appt.completedAt = new Date();
   await appt.save();
 
+  // ── Fire completion notification (thank-you + review prompt) ──────────────
+  try {
+    const { notifyUserCompleted } = require('../../utils/notificationService');
+    notifyUserCompleted(appt).catch((e) =>
+      console.error('[Notify] Completion notification failed:', e.message)
+    );
+  } catch (e) { console.error('[Notify] notificationService unavailable:', e.message); }
+
   res.status(200).json({
     success: true,
     message: 'Appointment marked as completed.',
@@ -148,6 +156,14 @@ const markNoShow = asyncHandler(async (req, res) => {
 
   appt.status = 'no_show';
   await appt.save();
+
+  // ── Fire no-show notification (missed appointment notice) ─────────────────
+  try {
+    const { notifyUserNoShow } = require('../../utils/notificationService');
+    notifyUserNoShow(appt).catch((e) =>
+      console.error('[Notify] No-show notification failed:', e.message)
+    );
+  } catch (e) { console.error('[Notify] notificationService unavailable:', e.message); }
 
   res.status(200).json({
     success: true,

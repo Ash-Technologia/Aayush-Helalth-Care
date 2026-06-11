@@ -18,9 +18,14 @@ export default function AdminPaymentsPage() {
 
   // Fetch payments
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['adminPayments', statusFilter, page],
+    queryKey: ['adminPayments', statusFilter, searchTerm, page],
     queryFn: async () => {
-      const res = await adminService.listPayments({ status: statusFilter, page, limit: 10 });
+      const res = await adminService.listPayments({
+        status: statusFilter,
+        search: searchTerm || undefined,
+        page,
+        limit: 10,
+      });
       return res.data.data;
     },
   });
@@ -34,7 +39,8 @@ export default function AdminPaymentsPage() {
       queryClient.invalidateQueries(['adminDashboard']);
     },
     onError: (err) => {
-      toast.error(err.response?.data?.message || 'Approval failed.');
+      const msg = err.response?.data?.errors?.[0]?.msg || err.response?.data?.message || 'Approval failed.';
+      toast.error(msg);
     },
   });
 
@@ -49,7 +55,8 @@ export default function AdminPaymentsPage() {
       queryClient.invalidateQueries(['adminDashboard']);
     },
     onError: (err) => {
-      toast.error(err.response?.data?.message || 'Rejection failed.');
+      const msg = err.response?.data?.errors?.[0]?.msg || err.response?.data?.message || 'Rejection failed.';
+      toast.error(msg);
     },
   });
 
@@ -79,18 +86,6 @@ export default function AdminPaymentsPage() {
   const getFullImageUrl = (url) => {
     return resolveBackendAssetUrl(url);
   };
-
-  // Filter submissions by patient name/phone in memory (secondary filter)
-  const submissions = data?.submissions || [];
-  const filteredSubmissions = submissions.filter((s) => {
-    const term = searchTerm.toLowerCase();
-    const matchesUser = s.user?.fullName?.toLowerCase().includes(term) ||
-                        s.user?.email?.toLowerCase().includes(term) ||
-                        s.user?.phone?.includes(term);
-    const matchesPatient = s.appointment?.patientName?.toLowerCase().includes(term) ||
-                           s.appointment?.patientPhone?.includes(term);
-    return matchesUser || matchesPatient;
-  });
 
   return (
     <>
@@ -135,7 +130,7 @@ export default function AdminPaymentsPage() {
             className="form-input"
             placeholder="Search by patient name, phone, or email..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
           />
         </div>
 
@@ -150,7 +145,7 @@ export default function AdminPaymentsPage() {
             <p>Failed to load payments.</p>
             <button onClick={() => refetch()} className="btn btn-secondary btn-sm">Try Again</button>
           </div>
-        ) : filteredSubmissions.length === 0 ? (
+        ) : data?.submissions?.length === 0 ? (
           <div className={styles.emptyState}>
             <div className={styles.emptyIcon}>💳</div>
             <p>No payments found matching the selection criteria.</p>
@@ -170,7 +165,7 @@ export default function AdminPaymentsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredSubmissions.map((s) => (
+                {data.submissions.map((s) => (
                   <tr key={s._id}>
                     <td>
                       <div className={styles.patientCell}>

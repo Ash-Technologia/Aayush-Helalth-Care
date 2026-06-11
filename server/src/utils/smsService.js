@@ -141,6 +141,98 @@ const smsUserCancelled = async (appointment) => {
   );
 };
 
+/**
+ * Slot locked — payment pending.
+ */
+const MSG_SLOT_LOCKED = (name, date, time, fee) =>
+  `Hi ${name}, your slot at Aayush Health Care is reserved for ${date} at ${time}. Pay Rs.${fee} & upload screenshot to confirm. Expires in 30 mins.`;
+
+/**
+ * Admin alert: user self-cancelled.
+ */
+const MSG_ADMIN_USER_CANCELLED = (patientName, date) =>
+  `[Admin] ${patientName} has cancelled their appointment on ${date}. Slot is now free.`;
+
+/**
+ * User: appointment rescheduled.
+ */
+const MSG_RESCHEDULED = (name, date, time) =>
+  `Hi ${name}, your Aayush Health Care appointment has been rescheduled to ${date} at ${time}. -Amrut Singhavi`;
+
+/**
+ * Admin: patient rescheduled.
+ */
+const MSG_ADMIN_RESCHEDULED = (patientName, newDate, newTime) =>
+  `[Admin] ${patientName} rescheduled their appointment to ${newDate} at ${newTime}. Please check admin panel.`;
+
+/**
+ * Appointment completed — review prompt.
+ */
+const MSG_COMPLETED = (name) =>
+  `Thank you for visiting Aayush Health Care, ${name}! We hope you feel better. Share your experience to help others. -Amrut Singhavi`;
+
+/**
+ * Patient no-show.
+ */
+const MSG_NO_SHOW = (name, date) =>
+  `Hi ${name}, you missed your Aayush Health Care appointment on ${date}. To reschedule, call +91 98228 43015.`;
+
+// ─── New SMS sender functions ────────────────────────────────────────────────
+
+const smsUserSlotLocked = async (appointment) => {
+  if (!appointment.patientPhone) return { success: false, reason: 'No phone' };
+  const date = new Date(appointment.appointmentDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+  return sendSms(
+    appointment.patientPhone,
+    MSG_SLOT_LOCKED(
+      appointment.patientName.split(' ')[0],
+      date,
+      appointment.slotStart,
+      appointment.feeSnapshot
+    )
+  );
+};
+
+const smsAdminUserCancelled = async (appointment) => {
+  const adminPhone = process.env.ADMIN_PHONE;
+  if (!adminPhone) return { success: false, reason: 'ADMIN_PHONE not configured' };
+  const date = new Date(appointment.appointmentDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+  return sendSms(adminPhone, MSG_ADMIN_USER_CANCELLED(appointment.patientName, date));
+};
+
+const smsUserRescheduled = async (appointment) => {
+  if (!appointment.patientPhone) return { success: false, reason: 'No phone' };
+  const date = new Date(appointment.appointmentDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+  return sendSms(
+    appointment.patientPhone,
+    MSG_RESCHEDULED(appointment.patientName.split(' ')[0], date, appointment.slotStart)
+  );
+};
+
+const smsAdminRescheduled = async (appointment) => {
+  const adminPhone = process.env.ADMIN_PHONE;
+  if (!adminPhone) return { success: false, reason: 'ADMIN_PHONE not configured' };
+  const date = new Date(appointment.appointmentDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+  return sendSms(adminPhone, MSG_ADMIN_RESCHEDULED(appointment.patientName, date, appointment.slotStart));
+};
+
+const smsUserCompleted = async (appointment) => {
+  if (!appointment.patientPhone) return { success: false, reason: 'No phone' };
+  return sendSms(
+    appointment.patientPhone,
+    MSG_COMPLETED(appointment.patientName.split(' ')[0])
+  );
+};
+
+const smsUserNoShow = async (appointment) => {
+  if (!appointment.patientPhone) return { success: false, reason: 'No phone' };
+  const date = new Date(appointment.appointmentDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+  return sendSms(
+    appointment.patientPhone,
+    MSG_NO_SHOW(appointment.patientName.split(' ')[0], date)
+  );
+};
+
 module.exports = {
   sendSms,
   smsUserConfirmed,
@@ -148,4 +240,10 @@ module.exports = {
   smsAdminNewPayment,
   smsUserReminder,
   smsUserCancelled,
+  smsUserSlotLocked,
+  smsAdminUserCancelled,
+  smsUserRescheduled,
+  smsAdminRescheduled,
+  smsUserCompleted,
+  smsUserNoShow,
 };

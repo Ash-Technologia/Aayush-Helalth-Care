@@ -96,7 +96,8 @@ export default function AdminProfilePage() {
       queryClient.invalidateQueries(['adminProfile']);
     },
     onError: (err) => {
-      toast.error(err.response?.data?.message || 'Failed to update profile.');
+      const msg = err.response?.data?.errors?.[0]?.msg || err.response?.data?.message || 'Failed to update profile.';
+      toast.error(msg);
     },
   });
 
@@ -107,7 +108,8 @@ export default function AdminProfilePage() {
       queryClient.invalidateQueries(['adminProfile']);
     },
     onError: (err) => {
-      toast.error(err.response?.data?.message || 'Failed to toggle emergency status.');
+      const msg = err.response?.data?.errors?.[0]?.msg || err.response?.data?.message || 'Failed to toggle emergency status.';
+      toast.error(msg);
     },
   });
 

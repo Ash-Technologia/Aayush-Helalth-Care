@@ -6,34 +6,129 @@ const PaymentSubmission = require('../../models/PaymentSubmission');
 const Appointment = require('../../models/Appointment');
 const { generateJoinWhatsAppLink, formatAppointmentDate, formatSlotTime } = require('../../utils/whatsappLinks');
 
-// ─── GET /api/v1/admin/payments ───────────────────────────────────────────────
+// ─── GET /api/v1/admin/payments ────────────────────────────────────────────────────
 /**
- * Lists payment submissions with optional status filter.
- * Default: pending submissions only (status=submitted).
+ * Lists payment submissions with optional status filter and search.
+ * Uses $lookup aggregation so search runs on joined appointment/user
+ * fields BEFORE pagination, keeping totalPages accurate.
  */
 const listPayments = asyncHandler(async (req, res) => {
-  const { status = 'submitted', page = 1, limit = 20 } = req.query;
+  const { status = 'submitted', search = '', page = 1, limit = 20 } = req.query;
   const pageNum  = Math.max(1, parseInt(page, 10));
   const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
   const skip     = (pageNum - 1) * limitNum;
 
   const validStatuses = ['submitted', 'approved', 'rejected'];
-  const filter = validStatuses.includes(status) ? { status } : {};
+  const matchStage = validStatuses.includes(status) ? { status } : {};
 
-  const [submissions, total] = await Promise.all([
-    PaymentSubmission.find(filter)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limitNum)
-      .populate('user', 'fullName phone email')
-      .populate({
-        path: 'appointment',
-        select: 'appointmentDate slotStart slotEnd consultationType feeSnapshot patientName patientPhone status',
-      })
-      .populate('adminReviewedBy', 'fullName email')
-      .lean(),
-    PaymentSubmission.countDocuments(filter),
-  ]);
+  // Build search filter on joined fields if a term is provided
+  const searchTerm = search.trim();
+  const searchFilter = searchTerm
+    ? {
+        $or: [
+          { 'appointmentData.patientName':  { $regex: searchTerm, $options: 'i' } },
+          { 'appointmentData.patientPhone': { $regex: searchTerm, $options: 'i' } },
+          { 'userData.fullName':            { $regex: searchTerm, $options: 'i' } },
+          { 'userData.email':               { $regex: searchTerm, $options: 'i' } },
+          { 'userData.phone':               { $regex: searchTerm, $options: 'i' } },
+        ],
+      }
+    : {};
+
+  const pipeline = [
+    // 1. Filter by status first (uses existing index)
+    { $match: matchStage },
+
+    // 2. Join appointments
+    {
+      $lookup: {
+        from:         'appointments',
+        localField:   'appointment',
+        foreignField: '_id',
+        as:           'appointmentData',
+      },
+    },
+    { $unwind: { path: '$appointmentData', preserveNullAndEmpty: true } },
+
+    // 3. Join users
+    {
+      $lookup: {
+        from:         'users',
+        localField:   'user',
+        foreignField: '_id',
+        as:           'userData',
+      },
+    },
+    { $unwind: { path: '$userData', preserveNullAndEmpty: true } },
+
+    // 4. Join adminReviewedBy
+    {
+      $lookup: {
+        from:         'users',
+        localField:   'adminReviewedBy',
+        foreignField: '_id',
+        as:           'adminReviewedByData',
+      },
+    },
+    { $unwind: { path: '$adminReviewedByData', preserveNullAndEmpty: true } },
+
+    // 5. Apply search filter (on joined fields) — this is what makes pagination correct
+    ...(searchTerm ? [{ $match: searchFilter }] : []),
+
+    // 6. Sort newest first
+    { $sort: { createdAt: -1 } },
+
+    // 7. Facet: paginated results + total count in one round-trip
+    {
+      $facet: {
+        submissions: [
+          { $skip: skip },
+          { $limit: limitNum },
+          {
+            $project: {
+              _id: 1,
+              status: 1,
+              amountClaimed: 1,
+              upiTransactionId: 1,
+              screenshotUrl: 1,
+              screenshotUploadedAt: 1,
+              whatsappSentConfirmed: 1,
+              rejectionReason: 1,
+              createdAt: 1,
+              // Re-shape joined documents to match the old populate shape
+              appointment: {
+                _id: '$appointmentData._id',
+                appointmentDate: '$appointmentData.appointmentDate',
+                slotStart: '$appointmentData.slotStart',
+                slotEnd: '$appointmentData.slotEnd',
+                consultationType: '$appointmentData.consultationType',
+                feeSnapshot: '$appointmentData.feeSnapshot',
+                patientName: '$appointmentData.patientName',
+                patientPhone: '$appointmentData.patientPhone',
+                status: '$appointmentData.status',
+              },
+              user: {
+                _id: '$userData._id',
+                fullName: '$userData.fullName',
+                phone: '$userData.phone',
+                email: '$userData.email',
+              },
+              adminReviewedBy: {
+                _id: '$adminReviewedByData._id',
+                fullName: '$adminReviewedByData.fullName',
+                email: '$adminReviewedByData.email',
+              },
+            },
+          },
+        ],
+        totalCount: [{ $count: 'count' }],
+      },
+    },
+  ];
+
+  const [result] = await PaymentSubmission.aggregate(pipeline);
+  const submissions = result?.submissions || [];
+  const total       = result?.totalCount?.[0]?.count || 0;
 
   res.status(200).json({
     success: true,

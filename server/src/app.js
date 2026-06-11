@@ -78,9 +78,13 @@ app.use(passport.initialize());
 
 // ─── Static File Serving (uploaded files) ────────────────────────────────────
 // Serves /uploads/** — doctor photos, QR codes, payment screenshots
+// maxAge:0 + etag:false ensures uploads (especially QR codes) are never stale-cached.
 app.use(
   '/uploads',
-  express.static(path.join(__dirname, '..', process.env.UPLOAD_DIR || 'uploads'))
+  express.static(path.join(__dirname, '..', process.env.UPLOAD_DIR || 'uploads'), {
+    maxAge: 0,
+    etag: false,
+  })
 );
 
 // ─── Health Check ────────────────────────────────────────────────────────────

@@ -170,17 +170,90 @@ const notifyUserAppointmentCancelled = async (appointment) => {
 };
 
 /**
- * Appointment reminder — called by a scheduled job (future cron task).
- * Sends 24h reminder via email + SMS.
+ * Fired when a slot is locked (payment pending).
+ * Sends patient an email with QR code (or UPI ID fallback) + SMS.
  */
-const notifyUserAppointmentReminder = async (appointment) => {
+const notifyUserSlotLocked = async (appointment, profile) => {
   return fireAll({
     userId:        appointment.user,
     appointmentId: appointment._id,
-    type:          'appointment_reminder',
-    emailFn:       () => emailService.notifyUserAppointmentReminder(appointment),
-    smsFn:         () => smsService.smsUserReminder(appointment),
-    payload: { appointmentDate: appointment.appointmentDate, slotStart: appointment.slotStart },
+    type:          'slot_locked',
+    emailFn:       () => emailService.notifyUserSlotLocked(appointment, profile),
+    smsFn:         () => smsService.smsUserSlotLocked(appointment),
+    payload: { patientEmail: appointment.patientEmail, patientPhone: appointment.patientPhone },
+  });
+};
+
+/**
+ * Fired when a patient cancels their own appointment.
+ * Notifies admin via email + SMS.
+ */
+const notifyAdminUserCancelled = async (appointment) => {
+  return fireAll({
+    userId:        appointment.user,
+    appointmentId: appointment._id,
+    type:          'appointment_cancelled',
+    emailFn:       () => emailService.notifyAdminUserCancelled(appointment),
+    smsFn:         () => smsService.smsAdminUserCancelled(appointment),
+    payload: { patientName: appointment.patientName, cancellationReason: appointment.cancellationReason },
+  });
+};
+
+/**
+ * Fired when a patient reschedules their appointment.
+ * Notifies both the patient AND admin (with old slot context).
+ */
+const notifyRescheduled = async (appointment, oldSlot) => {
+  // Notify patient
+  const patientResult = await fireAll({
+    userId:        appointment.user,
+    appointmentId: appointment._id,
+    type:          'appointment_rescheduled',
+    emailFn:       () => emailService.notifyUserRescheduled(appointment),
+    smsFn:         () => smsService.smsUserRescheduled(appointment),
+    payload: { patientEmail: appointment.patientEmail, patientPhone: appointment.patientPhone },
+  });
+
+  // Notify admin
+  await fireAll({
+    userId:        appointment.user,
+    appointmentId: appointment._id,
+    type:          'appointment_rescheduled',
+    emailFn:       () => emailService.notifyAdminRescheduled(appointment, oldSlot),
+    smsFn:         () => smsService.smsAdminRescheduled(appointment),
+    payload: { oldSlot },
+  });
+
+  return patientResult;
+};
+
+/**
+ * Fired when admin marks appointment as Completed.
+ * Sends patient a thank-you + review prompt.
+ */
+const notifyUserCompleted = async (appointment) => {
+  return fireAll({
+    userId:        appointment.user,
+    appointmentId: appointment._id,
+    type:          'appointment_completed',
+    emailFn:       () => emailService.notifyUserCompleted(appointment),
+    smsFn:         () => smsService.smsUserCompleted(appointment),
+    payload: { patientEmail: appointment.patientEmail, patientPhone: appointment.patientPhone },
+  });
+};
+
+/**
+ * Fired when admin marks appointment as No-Show.
+ * Sends patient a missed-appointment notice.
+ */
+const notifyUserNoShow = async (appointment) => {
+  return fireAll({
+    userId:        appointment.user,
+    appointmentId: appointment._id,
+    type:          'appointment_no_show',
+    emailFn:       () => emailService.notifyUserNoShow(appointment),
+    smsFn:         () => smsService.smsUserNoShow(appointment),
+    payload: { patientEmail: appointment.patientEmail, patientPhone: appointment.patientPhone },
   });
 };
 
@@ -190,5 +263,10 @@ module.exports = {
   notifyUserPaymentRejected,
   notifyUserAppointmentCancelled,
   notifyUserAppointmentReminder,
+  notifyUserSlotLocked,
+  notifyAdminUserCancelled,
+  notifyRescheduled,
+  notifyUserCompleted,
+  notifyUserNoShow,
   logNotification,
 };

@@ -81,6 +81,7 @@ export default function AdminLoginPage() {
               src="/logo.png"
               alt="Aayush Health Care"
               className={styles.logoImage}
+              onError={(e) => { e.target.style.display = 'none'; }}
             />
 
             <div className={styles.logoText}>

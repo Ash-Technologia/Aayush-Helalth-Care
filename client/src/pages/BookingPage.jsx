@@ -102,7 +102,7 @@ function StepType({ type, onChange, onNext }) {
       <div className={styles.typeGrid}>
         {[
           { val: 'online', icon: '🎥', title: 'Virtual OPD', desc: 'WhatsApp video call — from your home' },
-          { val: 'clinic', icon: '🏥', title: 'In-Clinic', desc: 'Visit the clinic in person — Pune' },
+          { val: 'clinic', icon: '🏥', title: 'In-Clinic', desc: 'Visit the clinic in person — Amravati' },
         ].map((opt) => (
           <button
             key={opt.val}
@@ -276,7 +276,13 @@ function StepSlot({ date, type, selectedSlot, onChange, onNext, onBack }) {
 // ── Step 4: Patient Details / Reschedule Confirmation ───────────
 function StepDetails({ form, onChange, onNext, onBack, loading, isRescheduled }) {
   const handleChange = (e) => onChange({ ...form, [e.target.name]: e.target.value });
-  const allFilled = form.patientName.trim() && form.patientPhone.trim() && form.patientEmail.trim() && form.reason.trim();
+  const allFilled =
+    form.patientName.trim() &&
+    form.patientPhone.trim() &&
+    form.patientEmail.trim() &&
+    form.reason.trim() &&
+    // When "Others" is selected, require non-empty custom reason text
+    (form.reason !== 'Others' || (form.customReason || '').trim());
 
   return (
     <div className={styles.stepContent}>
@@ -338,10 +344,10 @@ function StepDetails({ form, onChange, onNext, onBack, loading, isRescheduled })
           {form.reason === 'Others' && (
             <input
               type="text"
-              name="reason"
+              name="customReason"
               className="form-input"
               placeholder="Please specify your issue"
-              value={form.reason === 'Others' ? '' : form.reason}
+              value={form.customReason || ''}
               onChange={handleChange}
               disabled={isRescheduled}
               style={{ marginTop: '12px' }}
@@ -572,6 +578,7 @@ export default function BookingPage() {
     patientPhone: user?.phone || '',
     patientEmail: user?.email || '',
     reason: '',
+    customReason: '', // used when reason === 'Others'
   });
 
   // ── Appointment state — persisted in sessionStorage ─────────────
@@ -606,6 +613,7 @@ export default function BookingPage() {
         patientPhone: oldAppt.patientPhone || user?.phone || '',
         patientEmail: oldAppt.patientEmail || user?.email || '',
         reason: oldAppt.reason || '',
+        customReason: '',
       });
       dispatch(setConsultationType(oldAppt.consultationType));
     }
@@ -709,6 +717,10 @@ export default function BookingPage() {
 
   // ── Handlers ─────────────────────────────────────────────────────
   const handleLockSlot = useCallback(() => {
+    // When reason is 'Others', use the custom typed text instead
+    const effectiveReason = form.reason === 'Others'
+      ? (form.customReason || '').trim()
+      : form.reason;
     lockMutation.mutate({
       date,
       slotStart: slot.slotStart,
@@ -717,7 +729,7 @@ export default function BookingPage() {
       patientName: form.patientName,
       patientPhone: form.patientPhone,
       patientEmail: form.patientEmail,
-      reason: form.reason,
+      reason: effectiveReason,
     });
   }, [date, slot, type, form, lockMutation]);
 
@@ -731,9 +743,13 @@ export default function BookingPage() {
   }, [date, slot, type, rescheduleMutation]);
 
   const handleStep4Next = useCallback(() => {
-    const { patientName, patientPhone, patientEmail, reason } = form;
+    const { patientName, patientPhone, patientEmail, reason, customReason } = form;
     if (!patientName.trim() || !patientPhone.trim() || !patientEmail.trim() || !reason.trim()) {
       toast.error('All fields (Name, Phone, Email, Reason) are required.');
+      return;
+    }
+    if (reason === 'Others' && !customReason.trim()) {
+      toast.error('Please describe your reason for consultation.');
       return;
     }
     if (rescheduleId) handleReschedule();
@@ -749,6 +765,7 @@ export default function BookingPage() {
       patientPhone: user?.phone || '',
       patientEmail: user?.email || '',
       reason: '',
+      customReason: '',
     });
   };
 
@@ -845,9 +862,18 @@ export default function BookingPage() {
                   <StepPayment
                     profile={profile}
                     appointment={appointment}
-                    onBack={() => {
-                      // Going back from payment cancels the locked slot flow.
-                      // Reset appointment so a fresh lock is created on re-submit.
+                    onBack={async () => {
+                      // Attempt to cancel the locked slot to immediately free it.
+                      // Non-blocking: if cancel fails (network error), the slot
+                      // expires naturally in 30 min. Never block the user here.
+                      if (appointment?._id) {
+                        try {
+                          await appointmentService.cancel(
+                            appointment._id,
+                            'User went back to edit details'
+                          );
+                        } catch { /* slot will expire automatically */ }
+                      }
                       persistAppt(null);
                       clearAppt();
                       go(4);

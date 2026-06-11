@@ -18,6 +18,11 @@ const holidaySchema = new mongoose.Schema(
       trim: true,
       maxlength: [200, 'Reason cannot exceed 200 characters.'],
     },
+    isRecurring: {
+      type: Boolean,
+      default: false,
+      // true = repeats every year on this date (e.g., national holidays)
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -49,9 +54,26 @@ holidaySchema.statics.isHoliday = async function (dateInput) {
   );
   const nextDay = new Date(normalized.getTime() + 24 * 60 * 60 * 1000);
 
-  const holiday = await this.findOne({
+  // 1. Check for exact date match
+  let holiday = await this.findOne({
     date: { $gte: normalized, $lt: nextDay },
   });
+  if (holiday) return holiday;
+
+  // 2. Check for recurring holiday (same month and day, isRecurring = true)
+  const month = d.getUTCMonth() + 1; // MongoDB $month is 1-indexed
+  const day = d.getUTCDate();        // MongoDB $dayOfMonth is 1-indexed
+
+  holiday = await this.findOne({
+    isRecurring: true,
+    $expr: {
+      $and: [
+        { $eq: [{ $month: '$date' }, month] },
+        { $eq: [{ $dayOfMonth: '$date' }, day] },
+      ],
+    },
+  });
+
   return holiday || null;
 };
 

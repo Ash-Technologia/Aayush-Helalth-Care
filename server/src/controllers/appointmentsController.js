@@ -195,6 +195,15 @@ const lockSlot = asyncHandler(async (req, res) => {
     profile.consultationFee
   );
 
+  // ── Fire slot-locked notification (payment reminder) ─────────────────────
+  // Non-blocking: send email + SMS to patient with QR code / UPI details.
+  try {
+    const { notifyUserSlotLocked } = require('../utils/notificationService');
+    notifyUserSlotLocked(appointment, profile).catch((e) =>
+      console.error('[Notify] Slot-locked notification failed:', e.message)
+    );
+  } catch (e) { console.error('[Notify] notificationService unavailable:', e.message); }
+
   res.status(201).json({
     success: true,
     message: 'Slot reserved. Complete payment within 30 minutes.',
@@ -353,6 +362,17 @@ const cancelAppointment = asyncHandler(async (req, res) => {
   appointment.cancelledBy = 'user';
   await appointment.save();
 
+  // ── Notify admin of user-initiated cancellation ───────────────────────────
+  // Non-blocking: only notify if appointment had an active status (not just awaiting_payment)
+  if (['pending_approval', 'confirmed'].includes(appointment.status)) {
+    try {
+      const { notifyAdminUserCancelled } = require('../utils/notificationService');
+      notifyAdminUserCancelled(appointment).catch((e) =>
+        console.error('[Notify] User-cancel admin notification failed:', e.message)
+      );
+    } catch (e) { console.error('[Notify] notificationService unavailable:', e.message); }
+  }
+
   res.status(200).json({
     success: true,
     message: 'Appointment cancelled successfully.',
@@ -481,6 +501,17 @@ const rescheduleAppointment = asyncHandler(async (req, res) => {
   }
 
   await session.endSession();
+
+  // ── Fire reschedule notifications (patient + admin) ───────────────────────
+  // Pass old slot info so admin email shows the before/after comparison.
+  try {
+    const { notifyRescheduled } = require('../utils/notificationService');
+    notifyRescheduled(appointment, {
+      oldDate:      req.body._oldDate      || null,
+      oldSlotStart: req.body._oldSlotStart || null,
+      oldSlotEnd:   req.body._oldSlotEnd   || null,
+    }).catch((e) => console.error('[Notify] Reschedule notification failed:', e.message));
+  } catch (e) { console.error('[Notify] notificationService unavailable:', e.message); }
 
   res.status(200).json({
     success: true,

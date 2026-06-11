@@ -19,13 +19,14 @@ export default function RootLayout() {
   const isAuth = useSelector(selectIsAuth);
   const user = useSelector(selectUser);
   const menuOpen = useSelector(selectMobileMenuOpen);
+  // refreshToken is stored separately in state.auth.refreshToken, not inside the user object
+  const refreshToken = useSelector((state) => state.auth.refreshToken);
 
   useEffect(() => { dispatch(closeMobileMenu()); }, [location.pathname, dispatch]);
 
   const handleLogout = async () => {
     try {
-      const token = user?.refreshToken;
-      if (token) await authService.logout(token).catch(() => { });
+      if (refreshToken) await authService.logout(refreshToken).catch(() => { });
     } finally {
       dispatch(logout());
       toast.success('Signed out successfully.');
@@ -64,6 +65,7 @@ export default function RootLayout() {
     src="/logo.png"
     alt="Aayush Health Care"
     className={styles.logoImage}
+    onError={(e) => { e.target.style.display = 'none'; }}
   />
 
   <span className={styles.logoTextWrap}>
@@ -156,6 +158,7 @@ export default function RootLayout() {
     src="/logo.png"
     alt="Aayush Health Care"
     className={styles.footerLogoImage}
+    onError={(e) => { e.target.style.display = 'none'; }}
   />
 
   <span className={styles.footerLogoText}>
@@ -177,7 +180,8 @@ export default function RootLayout() {
                 </div>
                 <div className={styles.footerContactItem}>
                   <span className={styles.footerContactIcon}>📍</span>
-                  Matoshri Arcade, Near khatri compund, Amravati
+                  {/* TODO: pull from DoctorProfile.address when dynamic profile fields are added */}
+                  Matoshri Arcade, Near Khatri Compound, Amravati
                 </div>
               </div>
             </div>

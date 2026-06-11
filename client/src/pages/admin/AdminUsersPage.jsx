@@ -49,7 +49,8 @@ export default function AdminUsersPage() {
       queryClient.invalidateQueries(['adminUserHistory', selectedUserId]);
     },
     onError: (err) => {
-      toast.error(err.response?.data?.message || 'Failed to deactivate.');
+      const msg = err.response?.data?.errors?.[0]?.msg || err.response?.data?.message || 'Failed to deactivate.';
+      toast.error(msg);
     },
   });
 
@@ -61,7 +62,8 @@ export default function AdminUsersPage() {
       queryClient.invalidateQueries(['adminUserHistory', selectedUserId]);
     },
     onError: (err) => {
-      toast.error(err.response?.data?.message || 'Failed to activate.');
+      const msg = err.response?.data?.errors?.[0]?.msg || err.response?.data?.message || 'Failed to activate.';
+      toast.error(msg);
     },
   });
 

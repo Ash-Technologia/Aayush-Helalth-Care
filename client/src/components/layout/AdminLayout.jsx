@@ -34,6 +34,7 @@ export default function AdminLayout() {
             src="/logo.png"
             alt="Aayush Health Care"
             className={styles.logoImage}
+            onError={(e) => { e.target.style.display = 'none'; }}
           />
 
           <div>

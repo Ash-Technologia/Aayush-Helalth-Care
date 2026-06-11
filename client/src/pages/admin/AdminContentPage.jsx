@@ -70,7 +70,10 @@ export default function AdminContentPage() {
       toast.success('Hero section updated.');
       queryClient.invalidateQueries(['adminContent']);
     },
-    onError: (err) => toast.error(err.response?.data?.message || 'Failed to update.'),
+    onError: (err) => {
+      const msg = err.response?.data?.errors?.[0]?.msg || err.response?.data?.message || 'Failed to update.';
+      toast.error(msg);
+    },
   });
 
   const updateAboutMutation = useMutation({
@@ -79,7 +82,10 @@ export default function AdminContentPage() {
       toast.success('About section updated.');
       queryClient.invalidateQueries(['adminContent']);
     },
-    onError: (err) => toast.error(err.response?.data?.message || 'Failed to update.'),
+    onError: (err) => {
+      const msg = err.response?.data?.errors?.[0]?.msg || err.response?.data?.message || 'Failed to update.';
+      toast.error(msg);
+    },
   });
 
   const updateSeoMutation = useMutation({
@@ -88,7 +94,10 @@ export default function AdminContentPage() {
       toast.success('SEO metadata updated.');
       queryClient.invalidateQueries(['adminContent']);
     },
-    onError: (err) => toast.error(err.response?.data?.message || 'Failed to update.'),
+    onError: (err) => {
+      const msg = err.response?.data?.errors?.[0]?.msg || err.response?.data?.message || 'Failed to update.';
+      toast.error(msg);
+    },
   });
 
   // Services mutations
@@ -109,7 +118,10 @@ export default function AdminContentPage() {
       resetServiceForm();
       queryClient.invalidateQueries(['adminContent']);
     },
-    onError: (err) => toast.error(err.response?.data?.message || 'Failed to update.'),
+    onError: (err) => {
+      const msg = err.response?.data?.errors?.[0]?.msg || err.response?.data?.message || 'Failed to update.';
+      toast.error(msg);
+    },
   });
 
   const deleteServiceMutation = useMutation({
@@ -139,7 +151,10 @@ export default function AdminContentPage() {
       resetFaqForm();
       queryClient.invalidateQueries(['adminContent']);
     },
-    onError: (err) => toast.error(err.response?.data?.message || 'Failed to update.'),
+    onError: (err) => {
+      const msg = err.response?.data?.errors?.[0]?.msg || err.response?.data?.message || 'Failed to update.';
+      toast.error(msg);
+    },
   });
 
   const deleteFaqMutation = useMutation({

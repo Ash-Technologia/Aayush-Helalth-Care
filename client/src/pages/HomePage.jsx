@@ -12,6 +12,13 @@ import styles from './HomePage.module.css';
 const fadeUp = { hidden: { opacity: 0, y: 32 }, show: { opacity: 1, y: 0 } };
 const stagger = { show: { transition: { staggerChildren: 0.12 } } };
 
+// ── Icon keyword → emoji map for services (admin may store keyword strings) ──
+const ICON_MAP = {
+  leaf: '🌿', heart: '❤️', spa: '🌸', activity: '⚡', shield: '🛡️',
+  clock: '🕐', pill: '💊', yoga: '🧘', fire: '🔥', skin: '✨',
+  stethoscope: '🩺', lotus: '🪷', water: '💧', brain: '🧠', eye: '👁️',
+};
+
 // ── Section: Emergency Banner ─────────────────────────────────────
 function EmergencyBanner({ profile }) {
   if (!profile?.isEmergencyClosed) return null;
@@ -50,8 +57,9 @@ function HeroSection({ profile, content }) {
     }
   }, [content?.hero?.videoUrl]);
 
+  // Trim to ensure empty strings (from unconfigured DB fields) fall through to the next option
   const introPoster = resolveBackendAssetUrl(
-    content?.hero?.videoPosterUrl || profile?.imageUrl
+    content?.hero?.videoPosterUrl?.trim() || profile?.imageUrl?.trim() || null
   );
 
   return (
@@ -67,12 +75,12 @@ function HeroSection({ profile, content }) {
           </motion.div>
 
           <motion.h1 variants={fadeUp} className={`heading-display heading-1 ${styles.heroTitle}`}>
-            {content?.hero?.headline ? (
-              <span dangerouslySetInnerHTML={{ __html: content.hero.headline }} />
+            {content?.hero?.headline?.trim() ? (
+              <span dangerouslySetInnerHTML={{ __html: content.hero.headline.trim() }} />
             ) : (
               <>
                 Aayush Health Care,<br />
-                <span className="text-gradient"></span>
+                <span className="text-gradient">Heal Naturally</span>
               </>
             )}
           </motion.h1>
@@ -133,6 +141,9 @@ function HeroSection({ profile, content }) {
                       <div className={styles.placeholderCrest}>
                         <FiShield size={36} />
                       </div>
+                      <p className={styles.placeholderName}>
+                        {profile?.name?.split(' ').map((w) => w[0]).join('') || 'AS'}
+                      </p>
                     </div>
                   )}
                   <div className={styles.heroVideoOverlay}>
@@ -174,7 +185,7 @@ function HeroSection({ profile, content }) {
 function StatsSection({ profile }) {
   const stats = [
     { num: `${profile?.stats?.yearsExperience || 7}+`, label: 'Years of Practice', colorClass: styles.colorGreen },
-    { num: `${profile?.stats?.patientsTreated?.toLocaleString() || 'Many'}`, label: 'Patients Treated Across India', colorClass: styles.colorTerracotta },
+    { num: `${profile?.stats?.totalPatients?.toLocaleString() || 'Many'}`, label: 'Patients Treated Across India', colorClass: styles.colorTerracotta },
     { num: `${profile?.stats?.satisfactionRate || 95}%`, label: 'Satisfaction Rate', colorClass: styles.colorGold },
     { num: `₹${profile?.consultationFee || 500}`, label: 'For Each Consultancy Fee', colorClass: styles.colorBlue },
   ];
@@ -411,7 +422,7 @@ function ServicesSection({ content }) {
         >
           {services.map((s, i) => (
             <motion.div key={i} variants={fadeUp} className={styles.serviceCard}>
-              <div className={styles.serviceIconWrap}>{s.icon}</div>
+              <div className={styles.serviceIconWrap}>{ICON_MAP[s.icon] || s.icon}</div>
               <h3 className={styles.serviceTitle}>{s.title}</h3>
               <p className={styles.serviceDesc}>{s.description}</p>
             </motion.div>
@@ -483,9 +494,9 @@ function ReviewsSection({ reviews }) {
                 <div className={styles.reviewStars}>{stars(r.rating)}</div>
                 <p className={styles.reviewText}>{r.comment}</p>
                 <div className={styles.reviewAuthor}>
-                  <div className={`${styles.reviewAvatar} ${avatarClass}`}>{r.user?.fullName?.charAt(0) || 'P'}</div>
+                  <div className={`${styles.reviewAvatar} ${avatarClass}`}>{r.patient?.displayName?.charAt(0) || 'P'}</div>
                   <div>
-                    <div className={styles.reviewName}>{r.user?.fullName || 'Patient'}</div>
+                    <div className={styles.reviewName}>{r.patient?.displayName || 'Patient'}</div>
                     <div className={styles.reviewType}>{r.consultationType === 'online' ? 'Online' : 'In-Clinic'} Consultation</div>
                   </div>
                 </div>

@@ -43,7 +43,8 @@ export default function AdminAppointmentsPage() {
       queryClient.invalidateQueries(['adminDashboard']);
     },
     onError: (err) => {
-      toast.error(err.response?.data?.message || 'Action failed.');
+      const msg = err.response?.data?.errors?.[0]?.msg || err.response?.data?.message || 'Action failed.';
+      toast.error(msg);
     },
   });
 
@@ -56,7 +57,8 @@ export default function AdminAppointmentsPage() {
       queryClient.invalidateQueries(['adminDashboard']);
     },
     onError: (err) => {
-      toast.error(err.response?.data?.message || 'Action failed.');
+      const msg = err.response?.data?.errors?.[0]?.msg || err.response?.data?.message || 'Action failed.';
+      toast.error(msg);
     },
   });
 
@@ -71,7 +73,8 @@ export default function AdminAppointmentsPage() {
       queryClient.invalidateQueries(['adminDashboard']);
     },
     onError: (err) => {
-      toast.error(err.response?.data?.message || 'Cancellation failed.');
+      const msg = err.response?.data?.errors?.[0]?.msg || err.response?.data?.message || 'Cancellation failed.';
+      toast.error(msg);
     },
   });
 

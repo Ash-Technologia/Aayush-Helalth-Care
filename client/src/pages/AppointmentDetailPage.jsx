@@ -1,7 +1,8 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
-import { appointmentService, paymentService } from '@services';
+import { appointmentService } from '@services';
+import { resolveBackendAssetUrl } from '@services/api';
 import styles from './AppointmentDetailPage.module.css';
 
 const STATUS_MAP = {
@@ -100,7 +101,7 @@ export default function AppointmentDetailPage() {
                 {payment.screenshotUrl && (
                   <div className={`${styles.field} ${styles.wide}`}>
                     <span>Screenshot</span>
-                    <img src={payment.screenshotUrl} alt="Payment proof" className={styles.screenshot} />
+                    <img src={resolveBackendAssetUrl(payment.screenshotUrl)} alt="Payment proof" className={styles.screenshot} />
                   </div>
                 )}
               </div>
