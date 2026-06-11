@@ -112,6 +112,7 @@ const appointmentSchema = new mongoose.Schema(
     patientName: { type: String, trim: true },
     patientPhone: { type: String, trim: true },
     patientEmail: { type: String, trim: true, lowercase: true },
+    reason: { type: String, trim: true, default: '' },
   },
   {
     timestamps: true,

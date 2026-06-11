@@ -24,6 +24,7 @@ const formatAppointment = (appt) => ({
   patientName: appt.patientName,
   patientPhone: appt.patientPhone,
   patientEmail: appt.patientEmail,
+  reason: appt.reason,
   lockedUntil: appt.lockedUntil,
   lockRemainingSeconds: appt.lockRemainingSeconds,
   whatsappJoinLink: appt.whatsappJoinLink,
@@ -163,6 +164,7 @@ const lockSlot = asyncHandler(async (req, res) => {
             patientName:  req.body.patientName  || user.fullName,
             patientPhone: req.body.patientPhone || user.phone  || '',
             patientEmail: req.body.patientEmail || user.email  || '',
+            reason:       req.body.reason       || '',
           },
         ],
         { session }
@@ -478,6 +480,12 @@ const rescheduleAppointment = asyncHandler(async (req, res) => {
       appointment.slotStart = slotStart;
       appointment.slotEnd = slotEnd;
       appointment.consultationType = targetType;
+
+      // Update patient details if provided
+      if (req.body.patientName) appointment.patientName = req.body.patientName;
+      if (req.body.patientPhone) appointment.patientPhone = req.body.patientPhone;
+      if (req.body.patientEmail) appointment.patientEmail = req.body.patientEmail;
+      if (req.body.reason) appointment.reason = req.body.reason;
 
       // If awaiting_payment, reset lock countdown to 30 mins from now
       if (appointment.status === 'awaiting_payment') {

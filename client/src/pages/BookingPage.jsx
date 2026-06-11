@@ -298,19 +298,19 @@ function StepDetails({ form, onChange, onNext, onBack, loading, isRescheduled })
           <label className="form-label" htmlFor="patientName">Full Name *</label>
           <input id="patientName" name="patientName" className="form-input"
             value={form.patientName} onChange={handleChange}
-            placeholder="Your full name" required disabled={isRescheduled} />
+            placeholder="Your full name" required />
         </div>
         <div className="form-group">
           <label className="form-label" htmlFor="patientPhone">Mobile Number *</label>
           <input id="patientPhone" name="patientPhone" className="form-input"
             value={form.patientPhone} onChange={handleChange}
-            placeholder="10-digit mobile" inputMode="numeric" required disabled={isRescheduled} />
+            placeholder="10-digit mobile" inputMode="numeric" required />
         </div>
         <div className="form-group" style={{ gridColumn: '1/-1' }}>
           <label className="form-label" htmlFor="patientEmail">Email Address *</label>
           <input id="patientEmail" name="patientEmail" className="form-input"
             value={form.patientEmail} onChange={handleChange}
-            placeholder="email@example.com" type="email" required disabled={isRescheduled} />
+            placeholder="email@example.com" type="email" required />
         </div>
         <div className="form-group" style={{ gridColumn: '1/-1' }}>
           <label className="form-label">
@@ -334,7 +334,6 @@ function StepDetails({ form, onChange, onNext, onBack, loading, isRescheduled })
                   checked={form.reason === option}
                   onChange={handleChange}
                   required
-                  disabled={isRescheduled}
                 />
                 <span>{option}</span>
               </label>
@@ -349,7 +348,6 @@ function StepDetails({ form, onChange, onNext, onBack, loading, isRescheduled })
               placeholder="Please specify your issue"
               value={form.customReason || ''}
               onChange={handleChange}
-              disabled={isRescheduled}
               style={{ marginTop: '12px' }}
             />
           )}
@@ -608,12 +606,14 @@ export default function BookingPage() {
 
   useEffect(() => {
     if (oldAppt) {
+      const defaultReasons = ['Diabetes', 'Asthma', 'Back Pain', 'Kidney Stone', 'Constipation'];
+      const isDefault = defaultReasons.includes(oldAppt.reason);
       setForm({
         patientName: oldAppt.patientName || user?.fullName || '',
         patientPhone: oldAppt.patientPhone || user?.phone || '',
         patientEmail: oldAppt.patientEmail || user?.email || '',
-        reason: oldAppt.reason || '',
-        customReason: '',
+        reason: isDefault ? oldAppt.reason : (oldAppt.reason ? 'Others' : ''),
+        customReason: isDefault ? '' : (oldAppt.reason || ''),
       });
       dispatch(setConsultationType(oldAppt.consultationType));
     }
@@ -734,13 +734,20 @@ export default function BookingPage() {
   }, [date, slot, type, form, lockMutation]);
 
   const handleReschedule = useCallback(() => {
+    const effectiveReason = form.reason === 'Others'
+      ? (form.customReason || '').trim()
+      : form.reason;
     rescheduleMutation.mutate({
       date,
       slotStart: slot.slotStart,
       slotEnd: slot.slotEnd,
       consultationType: type,
+      patientName: form.patientName,
+      patientPhone: form.patientPhone,
+      patientEmail: form.patientEmail,
+      reason: effectiveReason,
     });
-  }, [date, slot, type, rescheduleMutation]);
+  }, [date, slot, type, form, rescheduleMutation]);
 
   const handleStep4Next = useCallback(() => {
     const { patientName, patientPhone, patientEmail, reason, customReason } = form;

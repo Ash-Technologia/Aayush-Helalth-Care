@@ -25,11 +25,20 @@ const normalizeApiBaseUrl = (value) => {
 export const getApiBaseUrl = () => normalizeApiBaseUrl(import.meta.env.VITE_API_URL);
 
 export const getBackendOrigin = () => {
-  try {
-    return new URL(getApiBaseUrl()).origin;
-  } catch {
+  const apiBase = getApiBaseUrl();
+  if (apiBase) {
+    try {
+      if (/^https?:\/\//i.test(apiBase)) {
+        return new URL(apiBase).origin;
+      }
+    } catch (e) {
+      console.error('Failed to parse API base URL origin:', e);
+    }
+  }
+  if (import.meta.env.DEV) {
     return 'http://localhost:5000';
   }
+  return window.location.origin || '';
 };
 
 export const resolveBackendAssetUrl = (url) => {
