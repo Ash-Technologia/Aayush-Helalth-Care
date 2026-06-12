@@ -42,6 +42,20 @@
   --clr-gold-400:  #fbbf24;
   --clr-gold-500:  #f59e0b;
 
+  /* Slates — Cool grays for structures & text */
+  --clr-slate-50:  #f8fafc;
+  --clr-slate-100: #f1f5f9;
+  --clr-slate-200: #e2e8f0;
+  --clr-slate-300: #cbd5e1;
+  --clr-slate-400: #94a3b8;
+  --clr-slate-500: #64748b;
+  --clr-slate-600: #475569;
+  --clr-slate-700: #334155;
+  --clr-slate-800: #1e293b;
+  --clr-slate-900: #0f172a;
+  --clr-slate-950: #020617;
+
+
   /* Semantic */
   --clr-success:    #10b981;
   --clr-success-bg: #ecfdf5;

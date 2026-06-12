@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectAdmin, adminLogout } from '@store/slices/authSlice';
@@ -23,6 +24,7 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useSelector(selectAdmin);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const { data: profileData } = useQuery({
     queryKey: ['doctorProfile'],
@@ -30,6 +32,10 @@ export default function AdminLayout() {
   });
   const profile = profileData?.profile || profileData;
   const logoUrl = profile?.imageUrl ? resolveBackendAssetUrl(profile.imageUrl) : '/logo.png';
+
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [location.pathname]);
 
   const handleLogout = async () => {
     dispatch(adminLogout());
@@ -44,7 +50,40 @@ export default function AdminLayout() {
           <link rel="icon" type="image/jpeg" href={logoUrl} />
         )}
       </Helmet>
-      <aside className={styles.sidebar}>
+      
+      {/* Mobile Top Header */}
+      <header className={styles.mobileHeader}>
+        <button
+          className={`${styles.hamburger} ${
+            isMobileOpen ? styles.hamburgerActive : ''
+          }`}
+          onClick={() => setIsMobileOpen(!isMobileOpen)}
+          aria-label="Toggle menu"
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+        <div className={styles.mobileBrand}>
+          <img
+            src={logoUrl}
+            alt="Aayush Health Care"
+            className={styles.mobileLogoImage}
+            onError={(e) => { e.target.style.display = 'none'; }}
+          />
+          <span className={styles.mobileLogoText}>Aayush Health Care</span>
+        </div>
+      </header>
+
+      {/* Sidebar Backdrop Overlay */}
+      {isMobileOpen && (
+        <div
+          className={styles.sidebarOverlay}
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+
+      <aside className={`${styles.sidebar} ${isMobileOpen ? styles.sidebarOpen : ''}`}>
         <div className={styles.sidebarLogo}>
           <img
             src={logoUrl}

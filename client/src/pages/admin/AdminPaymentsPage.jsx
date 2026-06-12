@@ -167,7 +167,7 @@ export default function AdminPaymentsPage() {
               <tbody>
                 {data.submissions.map((s) => (
                   <tr key={s._id}>
-                    <td>
+                    <td data-label="Patient">
                       <div className={styles.patientCell}>
                         <div className={styles.name}>{s.appointment?.patientName || s.user?.fullName}</div>
                         <div className={styles.contact}>
@@ -175,7 +175,7 @@ export default function AdminPaymentsPage() {
                         </div>
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Details">
                       {s.appointment ? (
                         <div className={styles.apptCell}>
                           <span className="badge badge-primary" style={{ fontSize: '0.75rem', marginBottom: 4, textTransform: 'uppercase' }}>
@@ -188,14 +188,14 @@ export default function AdminPaymentsPage() {
                         <span className={styles.mutedText}>N/A</span>
                       )}
                     </td>
-                    <td>
+                    <td data-label="Fee Check">
                       <div className={styles.feeCell}>
                         <div>Claimed: <strong>₹{s.amountClaimed}</strong></div>
                         <div className={styles.expectedFee}>Required: ₹{s.appointment?.feeSnapshot || 'N/A'}</div>
                         {s.upiTransactionId && <div className={styles.upiId}>UPI: {s.upiTransactionId}</div>}
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Receipt">
                       <div
                         className={styles.thumbnailWrapper}
                         onClick={() => setSelectedScreenshot(getFullImageUrl(s.screenshotUrl))}
@@ -208,7 +208,7 @@ export default function AdminPaymentsPage() {
                         <div className={styles.zoomOverlay}>🔍 View</div>
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Submitted">
                       <div className={styles.dateText}>
                         {new Date(s.screenshotUploadedAt || s.createdAt).toLocaleString('en-IN', {
                           day: 'numeric',
@@ -219,7 +219,7 @@ export default function AdminPaymentsPage() {
                       </div>
                     </td>
                     {statusFilter === 'rejected' && (
-                      <td className={styles.rejectionReasonCell}>
+                      <td data-label="Reason" className={styles.rejectionReasonCell}>
                         <div className={styles.reasonText}>{s.rejectionReason}</div>
                         <div className={styles.adminReviewBy}>By: {s.adminReviewedBy?.fullName || 'Admin'}</div>
                       </td>

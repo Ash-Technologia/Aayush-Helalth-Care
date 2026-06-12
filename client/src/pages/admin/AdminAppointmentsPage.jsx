@@ -230,7 +230,7 @@ export default function AdminAppointmentsPage() {
               <tbody>
                 {data.appointments.map((a) => (
                   <tr key={a._id}>
-                    <td>
+                    <td data-label="Patient">
                       <div className={styles.patientCell}>
                         <div className={styles.name}>{a.patientName}</div>
                         <div className={styles.meta}>
@@ -239,21 +239,21 @@ export default function AdminAppointmentsPage() {
                         </div>
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Time">
                       <div className={styles.timeCell}>
                         <div className={styles.date}>{formatDate(a.appointmentDate)}</div>
                         <div className={styles.slotTime}>🕗 {a.slotStart} - {a.slotEnd}</div>
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Type">
                       <span className={`badge ${a.consultationType === 'online' ? 'badge-primary' : 'badge-neutral'}`} style={{ textTransform: 'uppercase', fontSize: '0.75rem' }}>
                         {a.consultationType}
                       </span>
                     </td>
-                    <td>
+                    <td data-label="Fee">
                       <span className={styles.feeText}>₹{a.feeSnapshot}</span>
                     </td>
-                    <td>
+                    <td data-label="Status">
                       <span className={`badge ${getStatusBadgeClass(a.status)}`} style={{ fontSize: '0.75rem' }}>
                         {getStatusLabel(a.status)}
                       </span>

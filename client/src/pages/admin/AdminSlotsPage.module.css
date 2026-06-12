@@ -85,3 +85,10 @@
 
 .slotsGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
 .slotPreviewItem { background: #ffffff; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 8px 12px; text-align: center; font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); }
+
+@media (max-width: 600px) {
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+}
+

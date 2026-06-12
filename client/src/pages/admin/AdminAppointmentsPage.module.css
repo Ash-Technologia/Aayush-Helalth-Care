@@ -55,3 +55,61 @@
 .warningMessage { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; background: var(--clr-danger-bg); border-left: 3px solid var(--clr-danger); padding: 12px; border-radius: 4px; }
 
 .modalFooter { padding: 16px 20px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end; gap: 12px; background: var(--bg-surface); }
+
+@media (max-width: 768px) {
+  .tableWrapper {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+  .table, .table tbody, .table tr, .table td {
+    display: block;
+    width: 100% !important;
+  }
+  .table thead {
+    display: none;
+  }
+  .table tr {
+    background: #ffffff;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    margin-bottom: 16px;
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+  .table td {
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--border-subtle);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: right;
+  }
+  .table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    text-align: left;
+    margin-right: 12px;
+  }
+  .table td:last-child {
+    border-bottom: none;
+    padding-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .table td:last-child::before {
+    display: none;
+  }
+  .actionButtons {
+    width: 100%;
+    justify-content: stretch;
+  }
+  .actionButtons button, .actionButtons a {
+    flex: 1;
+    justify-content: center;
+  }
+}
+

@@ -148,35 +148,118 @@
   .content { padding: 20px; }
 }
 
-@media (max-width: 768px) {
-  .root { flex-direction: column; }
-  .sidebar {
-    width: 100%;
-    height: auto;
-    position: static;
-    overflow: visible;
-  }
-  .sidebarLogo {
-    padding: 16px 16px 12px;
-  }
-  .sidebarNav {
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: 10px 12px;
-  }
-  .navItem {
-    flex: 1 1 calc(50% - 4px);
-    justify-content: center;
-  }
-  .sidebarFooter {
-    padding: 12px;
-  }
-  .content { padding: 16px; }
+.mobileHeader {
+  display: none;
 }
 
-@media (max-width: 480px) {
-  .navItem {
-    flex-basis: 100%;
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+  .root {
+    flex-direction: column;
+    padding-top: 60px;
+  }
+
+  .mobileHeader {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: var(--clr-slate-900);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding-inline: 16px;
+    align-items: center;
+    z-index: 301;
+  }
+
+  .hamburger {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255,255,255,0.1);
+    background: transparent;
+  }
+
+  .hamburger span {
+    display: block;
+    width: 18px;
+    height: 1.5px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 1px;
+    transition: all var(--transition-base);
+  }
+
+  .hamburgerActive span:nth-child(1) {
+    transform: rotate(45deg) translate(3.5px, 3.5px);
+  }
+
+  .hamburgerActive span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+
+  .hamburgerActive span:nth-child(3) {
+    transform: rotate(-45deg) translate(4px, -4px);
+  }
+
+  .mobileBrand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 12px;
+  }
+
+  .mobileLogoImage {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    border-radius: 6px;
+  }
+
+  .mobileLogoText {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .sidebarOverlay {
+    position: fixed;
+    inset: 60px 0 0 0;
+    background: var(--bg-overlay);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 299;
+    animation: fadeIn var(--transition-fast) both;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    bottom: 0;
+    width: 260px;
+    height: calc(100vh - 60px);
+    z-index: 300;
+    transform: translateX(-100%);
+    transition: transform var(--transition-base);
+    background: var(--clr-slate-900);
+    overflow-y: auto;
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .sidebarOpen {
+    transform: translateX(0);
+  }
+
+  .content {
+    padding: 16px;
   }
 }
 

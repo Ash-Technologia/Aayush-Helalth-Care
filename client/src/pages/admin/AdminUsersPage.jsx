@@ -159,7 +159,7 @@ export default function AdminUsersPage() {
               <tbody>
                 {usersData.users.map((u) => (
                   <tr key={u._id}>
-                    <td>
+                    <td data-label="Patient">
                       <div className={styles.patientCell}>
                         <div className={styles.avatar}>{u.fullName?.charAt(0) || 'P'}</div>
                         <div className={styles.info}>
@@ -171,12 +171,12 @@ export default function AdminUsersPage() {
                         </div>
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Registered">
                       <div className={styles.dateText}>
                         {formatDate(u.createdAt)}
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Status">
                       <span className={`badge ${u.isActive ? 'badge-success' : 'badge-danger'}`} style={{ fontSize: '0.75rem' }}>
                         {u.isActive ? 'Active' : 'Suspended'}
                       </span>
@@ -290,11 +290,11 @@ export default function AdminUsersPage() {
                             <tbody>
                               {historyData.appointments.map((a) => (
                                 <tr key={a._id}>
-                                  <td><strong>{formatDate(a.appointmentDate)}</strong></td>
-                                  <td>{a.slotStart}</td>
-                                  <td style={{ textTransform: 'capitalize' }}>{a.consultationType}</td>
-                                  <td>₹{a.feeSnapshot}</td>
-                                  <td>
+                                  <td data-label="Date"><strong>{formatDate(a.appointmentDate)}</strong></td>
+                                  <td data-label="Time">{a.slotStart}</td>
+                                  <td data-label="Type" style={{ textTransform: 'capitalize' }}>{a.consultationType}</td>
+                                  <td data-label="Fee">₹{a.feeSnapshot}</td>
+                                  <td data-label="Status">
                                     <span className={`badge ${
                                       a.status === 'confirmed' ? 'badge-success' :
                                       a.status === 'completed' ? 'badge-info' :
