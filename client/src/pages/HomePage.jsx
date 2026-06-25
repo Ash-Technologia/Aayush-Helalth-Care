@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { motion } from 'framer-motion';
-import { FiPlay, FiShield } from 'react-icons/fi';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FiPlay, FiShield, FiCalendar, FiCheck, FiSmartphone, FiVideo, FiStar, FiArrowRight } from 'react-icons/fi';
 import { profileService, reviewService } from '@services';
 import { resolveBackendAssetUrl } from '@services/api';
 import styles from './HomePage.module.css';
@@ -18,6 +18,28 @@ const ICON_MAP = {
   clock: '🕐', pill: '💊', yoga: '🧘', fire: '🔥', skin: '✨',
   stethoscope: '🩺', lotus: '🪷', water: '💧', brain: '🧠', eye: '👁️',
 };
+
+// ── Announcement Bar ─────────────────────────────────────────────
+function AnnouncementBar() {
+  const [visible, setVisible] = useState(true);
+  if (!visible) return null;
+  return (
+    <div className={styles.announcementBar}>
+      <div className={styles.announcementInner}>
+        <span className={styles.announcementPulse} />
+        <span className={styles.announcementText}>
+          🎉 <strong>Now Accepting Online Appointments</strong> — Book a Consultation from the Comfort of Your Home!
+        </span>
+        <Link to="/book" className={styles.announcementCta}>Book Today →</Link>
+      </div>
+      <button
+        className={styles.announcementClose}
+        onClick={() => setVisible(false)}
+        aria-label="Dismiss"
+      >✕</button>
+    </div>
+  );
+}
 
 // ── Section: Emergency Banner ─────────────────────────────────────
 function EmergencyBanner({ profile }) {
@@ -96,7 +118,7 @@ function HeroSection({ profile, content }) {
 
           <motion.div variants={fadeUp} className={styles.heroCtas}>
             <Link to="/book" className="btn btn-primary btn-lg">
-              {content?.hero?.ctaPrimary || '📅 Book Appointment'}
+              <span style={{ marginRight: '6px' }}>📅</span> Book Appointment
             </Link>
             <a href="#about" className="btn btn-secondary btn-lg">
               {content?.hero?.ctaSecondary || 'About Singhavi'}
@@ -181,11 +203,51 @@ function HeroSection({ profile, content }) {
   );
 }
 
+// ── Section: Booking Highlight Strip ─────────────────────────────
+function BookingHighlightStrip() {
+  return (
+    <section className={styles.bookingStrip}>
+      <div className={`container ${styles.bookingStripInner}`}>
+        <div className={styles.bookingStripLeft}>
+          <div className={styles.bookingStripBadge}>⚡ Online &amp; In-Clinic Available</div>
+          <h2 className={styles.bookingStripTitle}>Book Your Consultation Today</h2>
+          <p className={styles.bookingStripSub}>
+            Choose how you'd like to connect — from home or visit us in Amravati.
+          </p>
+        </div>
+        <div className={styles.bookingStripCards}>
+          <Link to="/book?type=online" className={styles.consultCard}>
+            <div className={styles.consultCardIcon}><FiVideo size={28} /></div>
+            <div>
+              <div className={styles.consultCardTitle}>Online Consultation</div>
+              <div className={styles.consultCardSub}>WhatsApp Video · Instant Confirm</div>
+            </div>
+            <div className={styles.consultCardArrow}><FiArrowRight /></div>
+          </Link>
+          <Link to="/book?type=in-clinic" className={`${styles.consultCard} ${styles.consultCardAlt}`}>
+            <div className={`${styles.consultCardIcon} ${styles.consultCardIconAlt}`}>🏥</div>
+            <div>
+              <div className={styles.consultCardTitle}>In-Clinic Visit</div>
+              <div className={styles.consultCardSub}>Mon–Sat · 2 PM – 8 PM</div>
+            </div>
+            <div className={styles.consultCardArrow}><FiArrowRight /></div>
+          </Link>
+        </div>
+        <Link to="/book" className={styles.bookingStripCta}>
+          <span className={styles.bookingStripCtaGlow} />
+          <FiCalendar size={20} />
+          Book Appointment
+        </Link>
+      </div>
+    </section>
+  );
+}
+
 // ── Section: Stats ────────────────────────────────────────────────
 function StatsSection({ profile }) {
   const stats = [
     { num: `${profile?.stats?.yearsExperience || 7}+`, label: 'Years of Practice', colorClass: styles.colorGreen },
-    { num: `${profile?.stats?.totalPatients?.toLocaleString() || 'Many'}`, label: 'Patients Treated Across India', colorClass: styles.colorTerracotta },
+    { num: 'Many', label: 'Patients Treated Across India', colorClass: styles.colorTerracotta },
     { num: `${profile?.stats?.satisfactionRate || 95}%`, label: 'Satisfaction Rate', colorClass: styles.colorGold },
     { num: `₹${profile?.consultationFee || 500}`, label: 'For Each Consultancy Fee', colorClass: styles.colorBlue },
   ];
@@ -203,6 +265,80 @@ function StatsSection({ profile }) {
         </div>
       </div>
     </section>
+  );
+}
+
+// ── Section: Why Book Online ──────────────────────────────────────
+function WhyBookOnlineSection() {
+  const benefits = [
+    { icon: <FiCalendar size={22} />, title: 'Instant Slot Booking', desc: 'Pick a date & time that suits you — available 24/7 online.' },
+    { icon: <FiSmartphone size={22} />, title: 'Pay via UPI', desc: 'Secure & quick payment via any UPI app. No cash hassle.' },
+    { icon: <FiVideo size={22} />, title: 'WhatsApp Video Link', desc: 'Receive a WhatsApp consultation link right after payment.' },
+    { icon: <FiCheck size={22} />, title: 'Instant Confirmation', desc: 'Admin verifies & confirms your slot within minutes.' },
+    { icon: <FiStar size={22} />, title: 'Expert Specialist', desc: 'Consult with a certified Acupressure & Neurotherapy expert.' },
+    { icon: <FiShield size={22} />, title: '100% Safe & Private', desc: 'Your health data is kept strictly confidential.' },
+  ];
+
+  return (
+    <section className={styles.whyBook}>
+      <div className="container">
+        <div className="section-header">
+          <div className={`section-eyebrow ${styles.whyBookEyebrow}`}>Why Book Online?</div>
+          <h2 className="heading-display heading-2 section-title">Simple. Fast. Trusted.</h2>
+          <p className="section-subtitle">Everything you need for a seamless online consultation experience.</p>
+        </div>
+        <motion.div
+          className={styles.whyBookGrid}
+          initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}
+        >
+          {benefits.map((b, i) => (
+            <motion.div key={i} variants={fadeUp} className={styles.whyBookCard}>
+              <div className={styles.whyBookIconWrap}>{b.icon}</div>
+              <div>
+                <div className={styles.whyBookCardTitle}>{b.title}</div>
+                <div className={styles.whyBookCardDesc}>{b.desc}</div>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+        <div className={styles.whyBookCta}>
+          <Link to="/book" className={`btn btn-primary btn-lg ${styles.whyBookCtaBtn}`}>
+            <FiCalendar /> Book My Consultation Now
+          </Link>
+          <p className={styles.whyBookCtaNote}>Mon – Sat &nbsp;·&nbsp; 2 PM – 8 PM &nbsp;·&nbsp; ₹499 only</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Sticky Floating Book Button ───────────────────────────────────
+function StickyBookButton() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setShow(window.scrollY > 320);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          className={styles.stickyBook}
+          initial={{ opacity: 0, y: 60, scale: 0.85 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 60, scale: 0.85 }}
+          transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+        >
+          <Link to="/book" className={styles.stickyBookBtn}>
+            <span className={styles.stickyBookRing} />
+            <FiCalendar size={18} />
+            <span>Book Appointment</span>
+          </Link>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -589,9 +725,12 @@ export default function HomePage() {
         <meta name="keywords" content={content?.seo?.keywords?.join(', ') || 'ayurveda, Amravati, singhavi, acupressure specialist, neurotherapy specialist'} />
       </Helmet>
 
+      <AnnouncementBar />
       <EmergencyBanner profile={profile} />
       <HeroSection profile={profile} content={content} />
+      <BookingHighlightStrip />
       <StatsSection profile={profile} />
+      <WhyBookOnlineSection />
       <TestimonialsSection />
       <AboutSection profile={profile} content={content} />
       <ServicesSection content={content} />
@@ -599,6 +738,7 @@ export default function HomePage() {
       <ReviewsSection reviews={reviews} />
       <FaqSection faqs={content?.faqs} />
       <CtaSection profile={profile} />
+      <StickyBookButton />
     </>
   );
 }

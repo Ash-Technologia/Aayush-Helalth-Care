@@ -1,5 +1,107 @@
 /* HomePage.module.css — Professional White/Blue Theme */
 
+/* ─── Announcement Bar ───────────────────────────────────────── */
+.announcementBar {
+  position: relative;
+  background: linear-gradient(90deg, #064e3b 0%, #065f46 40%, #0d9488 100%);
+  color: #ffffff;
+  padding: 11px 48px 11px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.announcementBar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 80px,
+    rgba(255,255,255,0.04) 80px,
+    rgba(255,255,255,0.04) 81px
+  );
+  pointer-events: none;
+}
+
+.announcementInner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.announcementPulse {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.3);
+  flex-shrink: 0;
+  animation: annPulse 2s infinite;
+}
+
+@keyframes annPulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.3); }
+  50% { box-shadow: 0 0 0 7px rgba(74, 222, 128, 0.1); }
+}
+
+.announcementText {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  opacity: 0.95;
+}
+
+.announcementText strong {
+  font-weight: 700;
+}
+
+.announcementCta {
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  padding: 5px 16px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+  transition: background 0.2s, transform 0.2s;
+}
+
+.announcementCta:hover {
+  background: rgba(255, 255, 255, 0.28);
+  transform: translateX(3px);
+  color: #ffffff;
+}
+
+.announcementClose {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.7);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+  line-height: 1;
+}
+
+.announcementClose:hover {
+  color: #ffffff;
+  background: rgba(255,255,255,0.12);
+}
+
 /* ─── Emergency Banner ───────────────────────────────────────── */
 .emergencyBanner {
   background: #fef2f2;
@@ -10,6 +112,421 @@
   font-size: 0.9rem;
   font-weight: 500;
 }
+
+/* ─── Booking Highlight Strip ────────────────────────────────── */
+.bookingStrip {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfeff 50%, #f0fdf4 100%);
+  border-top: 1px solid #bbf7d0;
+  border-bottom: 2px solid #99f6e4;
+  padding: 40px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.bookingStrip::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(13,148,136,0.09) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.bookingStripInner {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 28px;
+  align-items: center;
+}
+
+.bookingStripLeft {
+  /* intentionally empty — layout handled by grid */
+}
+
+.bookingStripBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(90deg, #d1fae5, #ccfbf1);
+  color: #065f46;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 14px;
+  border-radius: 999px;
+  border: 1px solid #6ee7b7;
+  margin-bottom: 10px;
+}
+
+.bookingStripTitle {
+  font-size: clamp(1.25rem, 2.5vw, 1.8rem);
+  font-weight: 800;
+  color: #0d1a14;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.bookingStripSub {
+  font-size: 0.9rem;
+  color: #4a6457;
+  line-height: 1.6;
+}
+
+.bookingStripCards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+
+@media (max-width: 900px) {
+  .bookingStripInner {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .bookingStripBadge {
+    margin-inline: auto;
+  }
+
+  .bookingStripCards {
+    align-items: center;
+  }
+
+  .bookingStripCta {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .consultCard {
+    min-width: unset;
+    width: 100%;
+  }
+}
+
+/* Consult type cards */
+.consultCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #ffffff;
+  border: 1.5px solid #d1fae5;
+  border-radius: 16px;
+  padding: 14px 18px;
+  text-decoration: none;
+  min-width: 240px;
+  transition: all 0.22s ease;
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.07);
+  position: relative;
+  overflow: hidden;
+}
+
+.consultCard::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #10b981, #0d9488);
+  border-radius: 4px 0 0 4px;
+}
+
+.consultCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(13, 148, 136, 0.14);
+  border-color: #6ee7b7;
+}
+
+.consultCardAlt {
+  border-color: #bfdbfe;
+}
+
+.consultCardAlt::before {
+  background: linear-gradient(180deg, #3b82f6, #6366f1);
+}
+
+.consultCardAlt:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 10px 28px rgba(59, 130, 246, 0.14);
+}
+
+.consultCardIcon {
+  width: 46px;
+  height: 46px;
+  background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #065f46;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.consultCardIconAlt {
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  color: #1e40af;
+}
+
+.consultCardTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0d1a14;
+  line-height: 1.2;
+}
+
+.consultCardSub {
+  font-size: 0.78rem;
+  color: #6b8c7c;
+  margin-top: 2px;
+}
+
+.consultCardArrow {
+  margin-left: auto;
+  color: #9ca3af;
+  font-size: 1.1rem;
+  transition: transform 0.2s, color 0.2s;
+}
+
+.consultCard:hover .consultCardArrow {
+  color: #10b981;
+  transform: translateX(4px);
+}
+
+.consultCardAlt:hover .consultCardArrow {
+  color: #3b82f6;
+}
+
+/* Big CTA button on strip */
+.bookingStripCta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #059669 0%, #0d9488 100%);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 16px 30px;
+  border-radius: 999px;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(5, 150, 105, 0.35);
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: shimmerBookBtn 2.8s ease-in-out infinite;
+}
+
+.bookingStripCta:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 14px 32px rgba(5, 150, 105, 0.45);
+  color: #ffffff;
+}
+
+.bookingStripCtaGlow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.22) 50%, transparent 60%);
+  animation: shimmerGlow 2.2s linear infinite;
+}
+
+@keyframes shimmerGlow {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+@keyframes shimmerBookBtn {
+  0%, 100% { box-shadow: 0 8px 24px rgba(5, 150, 105, 0.35); }
+  50% { box-shadow: 0 8px 32px rgba(5, 150, 105, 0.55), 0 0 0 6px rgba(5, 150, 105, 0.1); }
+}
+
+/* ─── Why Book Online ─────────────────────────────────────────── */
+.whyBook {
+  background: linear-gradient(170deg, #f8faff 0%, #ffffff 60%, #f0fdf9 100%);
+  border-top: 1px solid var(--border-subtle);
+  padding: 72px 0;
+}
+
+.whyBookEyebrow {
+  background: linear-gradient(90deg, #dbeafe, #e0f2fe);
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+
+.whyBookGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: 48px;
+}
+
+@media (max-width: 900px) {
+  .whyBookGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .whyBookGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.whyBookCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 22px 20px;
+  transition: all 0.24s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.whyBookCard:hover {
+  border-color: #6ee7b7;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(16, 185, 129, 0.1);
+}
+
+.whyBookIconWrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+  border: 1px solid #a7f3d0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #059669;
+  flex-shrink: 0;
+}
+
+.whyBookCard:nth-child(2) .whyBookIconWrap { background: linear-gradient(135deg, #fffbeb, #fef3c7); border-color: #fde68a; color: #b45309; }
+.whyBookCard:nth-child(3) .whyBookIconWrap { background: linear-gradient(135deg, #eff6ff, #dbeafe); border-color: #bfdbfe; color: #1d4ed8; }
+.whyBookCard:nth-child(4) .whyBookIconWrap { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-color: #bbf7d0; color: #16a34a; }
+.whyBookCard:nth-child(5) .whyBookIconWrap { background: linear-gradient(135deg, #fff7ed, #ffedd5); border-color: #fed7aa; color: #ea580c; }
+.whyBookCard:nth-child(6) .whyBookIconWrap { background: linear-gradient(135deg, #fdf4ff, #fae8ff); border-color: #f5d0fe; color: #9333ea; }
+
+.whyBookCardTitle {
+  font-size: 0.975rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 5px;
+  line-height: 1.3;
+}
+
+.whyBookCardDesc {
+  font-size: 0.845rem;
+  color: #6b7280;
+  line-height: 1.65;
+}
+
+.whyBookCta {
+  margin-top: 48px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.whyBookCtaBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.05rem;
+  padding: 16px 36px;
+  border-radius: 999px;
+  animation: ctaPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes ctaPulse {
+  0%, 100% { box-shadow: 0 6px 20px rgba(5, 150, 105, 0.3); }
+  50% { box-shadow: 0 6px 28px rgba(5, 150, 105, 0.55), 0 0 0 8px rgba(5, 150, 105, 0.08); }
+}
+
+.whyBookCtaNote {
+  font-size: 0.82rem;
+  color: #9ca3af;
+  letter-spacing: 0.02em;
+}
+
+/* ─── Sticky Book Button ──────────────────────────────────────── */
+.stickyBook {
+  position: fixed;
+  bottom: 28px;
+  right: 24px;
+  z-index: 9999;
+}
+
+.stickyBookBtn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: linear-gradient(135deg, #059669 0%, #0d9488 100%);
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 700;
+  padding: 14px 24px;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 8px 28px rgba(5, 150, 105, 0.45);
+  letter-spacing: 0.01em;
+  overflow: hidden;
+  animation: stickyGlow 2.2s ease-in-out infinite;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stickyBookBtn:hover {
+  transform: scale(1.06) translateY(-2px);
+  box-shadow: 0 14px 36px rgba(5, 150, 105, 0.55);
+  color: #ffffff;
+}
+
+/* The rich "breathing glow ring" — premium, not cheap */
+.stickyBookRing {
+  position: absolute;
+  inset: -1px;
+  border-radius: 999px;
+  background: transparent;
+  border: 2.5px solid rgba(255,255,255,0.55);
+  animation: stickyRingPulse 2.2s ease-in-out infinite;
+}
+
+@keyframes stickyRingPulse {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.08); opacity: 0; }
+}
+
+@keyframes stickyGlow {
+  0%, 100% {
+    box-shadow: 0 8px 28px rgba(5, 150, 105, 0.45);
+  }
+  50% {
+    box-shadow: 0 8px 36px rgba(5, 150, 105, 0.65), 0 0 0 10px rgba(5, 150, 105, 0.08);
+  }
+}
+
+@media (max-width: 480px) {
+  .stickyBook {
+    bottom: 18px;
+    right: 14px;
+  }
+  .stickyBookBtn {
+    padding: 12px 18px;
+    font-size: 0.84rem;
+  }
+}
+
 
 /* ─── Hero ───────────────────────────────────────────────────── */
 .hero {
@@ -42,11 +559,7 @@
   z-index: 1;
 }
 
-@media (max-width: 900px) {
-  .heroInner {
-    grid-template-columns: 1fr;
-  }
-}
+
 
 .heroCopy {
   display: flex;
@@ -96,7 +609,7 @@
   font-weight: 800;
   line-height: 1.15;
   letter-spacing: -0.01em;
-  white-space: nowrap;
+  /* Removed white-space: nowrap to prevent mobile overflow */
 }
 
 .heroSub {
@@ -118,6 +631,80 @@
   gap: 8px;
   flex-wrap: wrap;
   align-items: center;
+}
+
+/* ── Hero responsive ── */
+@media (max-width: 900px) {
+  .heroInner {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    text-align: center;
+  }
+
+  .heroCopy {
+    align-items: center;
+  }
+
+  .heroEyebrow {
+    margin-inline: auto;
+  }
+
+  .heroSub {
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .heroCtas {
+    justify-content: center;
+  }
+
+  .heroBadgeRow {
+    justify-content: center;
+  }
+
+  .heroCardWrap {
+    max-width: 420px;
+    margin-inline: auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding-block: 40px 36px;
+  }
+
+  .heroTitle {
+    font-size: clamp(1.6rem, 7vw, 2.2rem);
+  }
+
+  .heroMediaWrap,
+  .heroImageWrap,
+  .heroVideoPoster,
+  .heroVideo {
+    min-height: 280px;
+    height: 280px;
+  }
+
+  .heroVideoPlay {
+    width: 56px;
+    height: 56px;
+  }
+
+  .heroVideoLabel {
+    font-size: 0.8rem;
+  }
+
+  .heroCtas {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .heroCtas .btn {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
 }
 
 .heroBadge {
@@ -514,12 +1101,6 @@
   background: var(--border-subtle);
 }
 
-@media (max-width: 768px) {
-  .statItem:nth-child(3)::before {
-    display: none;
-  }
-}
-
 .statNum {
   font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 700;
@@ -533,6 +1114,28 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+@media (max-width: 768px) {
+  .statItem:nth-child(3)::before {
+    display: none;
+  }
+
+  .statsBar {
+    padding-block: 20px;
+  }
+
+  .statNum {
+    font-size: clamp(1.3rem, 5vw, 1.7rem);
+  }
+
+  .statLabel {
+    font-size: 0.72rem;
+  }
+
+  .statItem {
+    padding: 10px 12px;
+  }
 }
 
 .colorGreen {
@@ -570,24 +1173,9 @@
   .aboutGrid {
     grid-template-columns: 1fr;
   }
-}
 
-@media (max-width: 768px) {
-  .heroMediaWrap,
-  .heroImageWrap,
-  .heroVideoPoster,
-  .heroVideo {
-    min-height: 280px;
-    height: 280px;
-  }
-
-  .heroVideoPlay {
-    width: 56px;
-    height: 56px;
-  }
-
-  .heroVideoLabel {
-    font-size: 0.8rem;
+  .aboutLeft {
+    padding-right: 0;
   }
 }
 
