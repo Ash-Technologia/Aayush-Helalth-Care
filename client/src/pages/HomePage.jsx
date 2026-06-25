@@ -305,7 +305,7 @@ function WhyBookOnlineSection() {
           <Link to="/book" className={`btn btn-primary btn-lg ${styles.whyBookCtaBtn}`}>
             <FiCalendar /> Book My Consultation Now
           </Link>
-          <p className={styles.whyBookCtaNote}>Mon – Sat &nbsp;·&nbsp; 2 PM – 8 PM &nbsp;·&nbsp; ₹499 only</p>
+          <p className={styles.whyBookCtaNote}>Mon – Sat &nbsp;·&nbsp; 2 PM – 8 PM</p>
         </div>
       </div>
     </section>

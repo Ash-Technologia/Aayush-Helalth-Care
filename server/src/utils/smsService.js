@@ -2,42 +2,83 @@
 
 const axios = require('axios');
 
+// ─── Clinic constants (never hardcode — read from env at runtime) ──────────────
+const CLINIC_NAME  = () => process.env.CLINIC_NAME  || 'Aayush Health Care';
+const CLINIC_PHONE = () => process.env.CLINIC_PHONE || '';
+
 const API_KEY = () => process.env.FAST2SMS_API_KEY;
 
-// ─── Message Templates ────────────────────────────────────────────────────────
-// DLT-registered template bodies for transactional route.
-// In production, replace {variables} with actual DLT template IDs.
+// ═══════════════════════════════════════════════════════════════
+// SMS MESSAGE TEMPLATES
+// Keep each message under 160 characters for single-SMS delivery.
+// Use CLINIC_PHONE() — never hardcode the phone number here.
+// ═══════════════════════════════════════════════════════════════
 
 /**
- * Appointment confirmed SMS.
- * Max 160 chars for single SMS, keep concise.
+ * Appointment confirmed — sent to patient after admin approves payment.
  */
 const MSG_CONFIRMED = (name, date, time, type) =>
-  `Hi ${name}, your Aayush Health Care appointment is CONFIRMED for ${date} at ${time} (${type}). Carry this msg as reference. -Amrut Singhavi`;
+  `Dear ${name}, your appointment at ${CLINIC_NAME()} is CONFIRMED for ${date} at ${time} (${type}). We look forward to seeing you. Please keep this message for reference.`;
 
 /**
- * Payment rejected SMS.
+ * Payment rejected — sent to patient when admin cannot verify payment.
  */
 const MSG_REJECTED = (name) =>
-  `Hi ${name}, your payment for Aayush Health Care could not be verified. Please rebook & upload a clear payment screenshot. Call: +91 98228 43015`;
+  `Dear ${name}, we were unable to verify your payment at ${CLINIC_NAME()}. Please rebook and upload a clear payment screenshot. We are here to help — contact us at ${CLINIC_PHONE()}.`;
 
 /**
- * Admin alert: new payment received.
+ * Admin alert: new payment received and pending review.
  */
 const MSG_ADMIN_NEW_PAYMENT = (patientName, amount) =>
-  `[Admin] New payment of Rs.${amount} from ${patientName} is pending verification. Please review in the admin panel.`;
+  `[${CLINIC_NAME()}] New payment of Rs.${amount} from ${patientName} is awaiting verification. Please review it in the admin panel at your earliest convenience.`;
 
 /**
- * Appointment reminder.
+ * 24-hour appointment reminder — sent to patient one day before.
  */
 const MSG_REMINDER = (name, time, type) =>
-  `Reminder: Hi ${name}, your Aayush Health Care ${type} appointment is tomorrow at ${time}. -Amrut Singhavi`;
+  `Dear ${name}, a friendly reminder of your ${type} appointment at ${CLINIC_NAME()} tomorrow at ${time}. Please be ready on time. We look forward to assisting you.`;
 
 /**
- * Appointment cancelled.
+ * Appointment cancelled by admin — sent to patient.
  */
 const MSG_CANCELLED = (name, date) =>
-  `Hi ${name}, your Aayush Health Care appointment on ${date} has been cancelled. For queries call +91 98228 43015.`;
+  `Dear ${name}, your appointment at ${CLINIC_NAME()} on ${date} has been cancelled. We apologise for any inconvenience. For assistance, please contact us at ${CLINIC_PHONE()}.`;
+
+/**
+ * Slot locked — payment pending — sent to patient after booking.
+ */
+const MSG_SLOT_LOCKED = (name, date, time, fee) =>
+  `Dear ${name}, your slot at ${CLINIC_NAME()} on ${date} at ${time} is reserved. Please pay Rs.${fee} and upload your screenshot to confirm. Slot expires in 30 minutes.`;
+
+/**
+ * Admin alert: patient self-cancelled their appointment.
+ */
+const MSG_ADMIN_USER_CANCELLED = (patientName, date) =>
+  `[${CLINIC_NAME()}] ${patientName} has cancelled their appointment on ${date}. The slot is now available.`;
+
+/**
+ * Appointment rescheduled — sent to patient.
+ */
+const MSG_RESCHEDULED = (name, date, time) =>
+  `Dear ${name}, your appointment at ${CLINIC_NAME()} has been rescheduled to ${date} at ${time}. Please contact us if you have any questions.`;
+
+/**
+ * Admin alert: patient rescheduled their appointment.
+ */
+const MSG_ADMIN_RESCHEDULED = (patientName, newDate, newTime) =>
+  `[${CLINIC_NAME()}] ${patientName} has rescheduled their appointment to ${newDate} at ${newTime}. Please review in the admin panel.`;
+
+/**
+ * Appointment completed — review prompt sent to patient.
+ */
+const MSG_COMPLETED = (name) =>
+  `Dear ${name}, thank you for visiting ${CLINIC_NAME()}. We hope you are feeling better. Your feedback means a great deal to us — we would love to hear from you.`;
+
+/**
+ * Patient marked as no-show — gentle notice sent to patient.
+ */
+const MSG_NO_SHOW = (name, date) =>
+  `Dear ${name}, we noticed you could not make your appointment at ${CLINIC_NAME()} on ${date}. We hope all is well. Please contact us at ${CLINIC_PHONE()} to reschedule.`;
 
 // ─── Core send function ───────────────────────────────────────────────────────
 /**
@@ -65,7 +106,7 @@ const sendSms = async (phone, message) => {
         authorization: apiKey,
         message,
         language:  'english',
-        route:     'q',          // Quick/transactional route — use 'dlt' for DLT
+        route:     'q',          // Quick/transactional route — use 'dlt' for DLT-registered templates
         numbers:   phone,
       },
       timeout: 10_000,
@@ -83,7 +124,7 @@ const sendSms = async (phone, message) => {
   }
 };
 
-// ─── Notification SMS functions ───────────────────────────────────────────────
+// ─── Notification SMS sender functions ───────────────────────────────────────
 
 const smsUserConfirmed = async (appointment) => {
   if (!appointment.patientPhone) return { success: false, reason: 'No phone' };
@@ -125,7 +166,7 @@ const smsUserReminder = async (appointment) => {
     MSG_REMINDER(
       appointment.patientName.split(' ')[0],
       appointment.slotStart,
-      appointment.consultationType === 'online' ? 'online' : 'clinic'
+      appointment.consultationType === 'online' ? 'online' : 'in-clinic'
     )
   );
 };
@@ -141,44 +182,6 @@ const smsUserCancelled = async (appointment) => {
   );
 };
 
-/**
- * Slot locked — payment pending.
- */
-const MSG_SLOT_LOCKED = (name, date, time, fee) =>
-  `Hi ${name}, your slot at Aayush Health Care is reserved for ${date} at ${time}. Pay Rs.${fee} & upload screenshot to confirm. Expires in 30 mins.`;
-
-/**
- * Admin alert: user self-cancelled.
- */
-const MSG_ADMIN_USER_CANCELLED = (patientName, date) =>
-  `[Admin] ${patientName} has cancelled their appointment on ${date}. Slot is now free.`;
-
-/**
- * User: appointment rescheduled.
- */
-const MSG_RESCHEDULED = (name, date, time) =>
-  `Hi ${name}, your Aayush Health Care appointment has been rescheduled to ${date} at ${time}. -Amrut Singhavi`;
-
-/**
- * Admin: patient rescheduled.
- */
-const MSG_ADMIN_RESCHEDULED = (patientName, newDate, newTime) =>
-  `[Admin] ${patientName} rescheduled their appointment to ${newDate} at ${newTime}. Please check admin panel.`;
-
-/**
- * Appointment completed — review prompt.
- */
-const MSG_COMPLETED = (name) =>
-  `Thank you for visiting Aayush Health Care, ${name}! We hope you feel better. Share your experience to help others. -Amrut Singhavi`;
-
-/**
- * Patient no-show.
- */
-const MSG_NO_SHOW = (name, date) =>
-  `Hi ${name}, you missed your Aayush Health Care appointment on ${date}. To reschedule, call +91 98228 43015.`;
-
-// ─── New SMS sender functions ────────────────────────────────────────────────
-
 const smsUserSlotLocked = async (appointment) => {
   if (!appointment.patientPhone) return { success: false, reason: 'No phone' };
   const date = new Date(appointment.appointmentDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
@@ -188,7 +191,7 @@ const smsUserSlotLocked = async (appointment) => {
       appointment.patientName.split(' ')[0],
       date,
       appointment.slotStart,
-      appointment.feeSnapshot
+      appointment.feeSnapshot          // always comes from DB — no fallback
     )
   );
 };

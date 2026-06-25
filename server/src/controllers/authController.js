@@ -511,19 +511,51 @@ const requestOtp = asyncHandler(async (req, res) => {
   let sent = false;
 
   if (isEmail) {
-    const { sendEmail } = require('../utils/emailService');
-    const html = `
-      <h2 style="margin:0 0 16px;font-size:20px;color:#111827;">One-Time Password (OTP) Verification</h2>
-      <p style="margin:0 0 24px;font-size:14px;color:#6b7280;">Please use the following 6-digit One-Time Password to verify your account. This code is valid for 10 minutes.</p>
+    const { sendEmail, wrapHtml: _wrap } = require('../utils/emailService');
+    const clinicName = process.env.CLINIC_NAME || 'Aayush Health Care';
+    const expiryMins = process.env.OTP_EXPIRY_MINUTES || '10';
+
+    // Build a clean, professional OTP email that matches the brand
+    const otpBody = `
+      <h2 style="margin:0 0 6px;font-size:21px;font-weight:800;color:#0f172a;letter-spacing:-0.3px;">🔐 Verify Your Identity</h2>
+      <p style="margin:0 0 24px;font-size:14px;color:#64748b;line-height:1.7;">
+        Dear User, you have requested a One-Time Password (OTP) to access your ${clinicName} account.
+        Please use the code below to complete your verification.
+      </p>
+
       <div style="text-align:center;margin:32px 0;">
-        <span style="font-size:36px;font-weight:800;letter-spacing:6px;color:#0d9488;background:#f3f4f6;padding:16px 32px;border-radius:12px;border:1px dashed #0d9488;">${otp}</span>
+        <div style="display:inline-block;background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:2px dashed #0d9488;border-radius:14px;padding:20px 40px;">
+          <p style="margin:0 0 4px;font-size:11px;font-weight:700;color:#6b7280;letter-spacing:3px;text-transform:uppercase;">Your OTP</p>
+          <span style="font-size:40px;font-weight:800;letter-spacing:8px;color:#0d9488;font-family:'Courier New',monospace;">${otp}</span>
+          <p style="margin:8px 0 0;font-size:12px;color:#94a3b8;">Valid for ${expiryMins} minutes</p>
+        </div>
       </div>
-      <p style="margin:0 0 12px;font-size:12px;color:#9ca3af;">If you did not request this verification, please ignore this email.</p>
+
+      <div style="background:#fef2f2;border-left:4px solid #f87171;padding:14px 16px;border-radius:0 10px 10px 0;margin:20px 0;">
+        <p style="margin:0;font-size:13px;color:#7f1d1d;line-height:1.6;">
+          🔒 <strong>Security Notice:</strong> This OTP is valid for a single use and expires in ${expiryMins} minutes.
+          Never share this code with anyone. ${clinicName} will never ask for your OTP.
+        </p>
+      </div>
+
+      <p style="font-size:13px;color:#94a3b8;margin-top:20px;text-align:center;line-height:1.6;">
+        If you did not request this verification, please disregard this email — no action is required.
+      </p>
     `;
+
+    // Use shared wrapper so branding is consistent with all other emails
+    let html;
+    try {
+      const emailSvc = require('../utils/emailService');
+      html = emailSvc.wrapHtml ? emailSvc.wrapHtml('OTP Verification', otpBody) : otpBody;
+    } catch {
+      html = otpBody;
+    }
+
     const mailRes = await sendEmail({
       to: cleanId,
-      subject: `🔐 Your Verification Code: ${otp}`,
-      html
+      subject: `🔐 Your ${clinicName} Verification Code: ${otp}`,
+      html,
     });
     sent = mailRes.success;
   } else {
