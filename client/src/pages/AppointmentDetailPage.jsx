@@ -117,11 +117,17 @@ export default function AppointmentDetailPage() {
 
           {/* Actions */}
           <div className={styles.actions}>
+            {(appt.status === 'awaiting_payment' || appt.status === 'payment_rejected') && (
+              <Link to="/book" className="btn btn-primary">💳 Complete / Re-submit Payment</Link>
+            )}
+            {['awaiting_payment', 'pending_approval', 'confirmed'].includes(appt.status) && (
+              <Link to={`/book?reschedule=${appt._id}`} className="btn btn-secondary">🔄 Reschedule</Link>
+            )}
             {appt.status === 'completed' && (
               <Link to={`/review/${id}`} className="btn btn-primary">⭐ Leave a Review</Link>
             )}
-            {appt.status === 'rejected' && (
-              <Link to="/book" className="btn btn-primary">📅 Rebook Appointment</Link>
+            {appt.status === 'payment_rejected' && (
+              <Link to="/book" className="btn btn-secondary">📅 Book New Slot</Link>
             )}
           </div>
         </div>

@@ -2,11 +2,17 @@ import axios from 'axios';
 import { store } from '@store/store';
 import { logout, adminLogout, setTokens } from '@store/slices/authSlice';
 
-const DEFAULT_API_URL = import.meta.env.DEV ? 'http://localhost:5000/api/v1' : '';
+const DEFAULT_API_URL = import.meta.env.DEV ? 'http://localhost:5000/api/v1' : '/api/v1';
 
 const normalizeApiBaseUrl = (value) => {
-  if (!value || value.startsWith('/')) {
+  if (!value) {
     return DEFAULT_API_URL;
+  }
+
+  // Handle relative base URLs (e.g. /api or /api/v1)
+  if (value.startsWith('/')) {
+    const trimmed = value.replace(/\/+$/, '');
+    return trimmed.endsWith('/api/v1') ? trimmed : `${trimmed}/api/v1`.replace(/\/api\/api\//, '/api/');
   }
 
   try {
@@ -26,11 +32,9 @@ export const getApiBaseUrl = () => normalizeApiBaseUrl(import.meta.env.VITE_API_
 
 export const getBackendOrigin = () => {
   const apiBase = getApiBaseUrl();
-  if (apiBase) {
+  if (apiBase && /^https?:\/\//i.test(apiBase)) {
     try {
-      if (/^https?:\/\//i.test(apiBase)) {
-        return new URL(apiBase).origin;
-      }
+      return new URL(apiBase).origin;
     } catch (e) {
       console.error('Failed to parse API base URL origin:', e);
     }
@@ -38,11 +42,16 @@ export const getBackendOrigin = () => {
   if (import.meta.env.DEV) {
     return 'http://localhost:5000';
   }
-  return window.location.origin || '';
+  return typeof window !== 'undefined' ? window.location.origin : '';
 };
 
 export const resolveBackendAssetUrl = (url) => {
   if (!url) return '';
+
+  // Frontend public static assets (do not prefix with backend origin)
+  if (url === '/logo.svg' || url === '/logo.png' || url.startsWith('/icons.')) {
+    return url;
+  }
 
   // Convert Google Drive viewer links to direct image/thumbnail links
   if (/drive\.google\.com/i.test(url)) {

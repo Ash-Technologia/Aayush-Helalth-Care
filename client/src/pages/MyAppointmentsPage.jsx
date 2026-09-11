@@ -47,8 +47,8 @@ function AppointmentCard({ appt }) {
         <span className={styles.cardFee}>₹{appt.feeSnapshot}</span>
         <div className={styles.cardActions}>
           <Link to={`/appointments/${appt._id}`} className="btn btn-secondary btn-sm">View Details</Link>
-          {appt.status === 'locked' && (
-            <Link to="/book" className="btn btn-primary btn-sm">Complete Payment</Link>
+          {(appt.status === 'awaiting_payment' || appt.status === 'payment_rejected') && (
+            <Link to={`/appointments/${appt._id}`} className="btn btn-primary btn-sm">Complete Payment</Link>
           )}
           {appt.status === 'completed' && (
             <Link to={`/review/${appt._id}`} className="btn btn-ghost btn-sm">Leave Review ⭐</Link>
@@ -81,11 +81,11 @@ export default function MyAppointmentsPage() {
   const filtered = filter === 'all' ? allAppts : allAppts.filter((a) => a.status === filter);
 
   const FILTERS = [
-    { val:'all',       label:'All' },
-    { val:'confirmed', label:'Confirmed' },
-    { val:'submitted', label:'Under Review' },
-    { val:'completed', label:'Completed' },
-    { val:'cancelled', label:'Cancelled' },
+    { val:'all',              label:'All' },
+    { val:'confirmed',        label:'Confirmed' },
+    { val:'pending_approval', label:'Under Review' },
+    { val:'completed',        label:'Completed' },
+    { val:'cancelled',        label:'Cancelled' },
   ];
 
   return (

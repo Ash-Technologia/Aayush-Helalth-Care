@@ -224,7 +224,7 @@ function BookingHighlightStrip() {
             </div>
             <div className={styles.consultCardArrow}><FiArrowRight /></div>
           </Link>
-          <Link to="/book?type=in-clinic" className={`${styles.consultCard} ${styles.consultCardAlt}`}>
+          <Link to="/book?type=clinic" className={`${styles.consultCard} ${styles.consultCardAlt}`}>
             <div className={`${styles.consultCardIcon} ${styles.consultCardIconAlt}`}>🏥</div>
             <div>
               <div className={styles.consultCardTitle}>In-Clinic Visit</div>
@@ -517,12 +517,24 @@ function AboutSection({ profile, content }) {
             {/* Timings card */}
             <div className={styles.timingsCard}>
               <div className={styles.timingsHead}>🕐 Clinic Timings</div>
-              {clinicTimings.map((t, i) => (
-                <div key={i} className={styles.timingRow}>
-                  <span className={styles.timingDay}>{t.day}</span>
-                  <span className={styles.timingTime}>{t.startTime} – {t.endTime}</span>
-                </div>
-              ))}
+              {clinicTimings.map((t, i) => {
+                let timingStr = 'Closed';
+                if (t.isOpen !== false) {
+                  if (t.shifts && t.shifts.length > 0) {
+                    timingStr = t.shifts.map((s) => `${s.open} – ${s.close}`).join(', ');
+                  } else if (t.startTime && t.endTime && t.startTime !== 'Closed') {
+                    timingStr = `${t.startTime} – ${t.endTime}`;
+                  } else {
+                    timingStr = '2:00 PM – 8:00 PM';
+                  }
+                }
+                return (
+                  <div key={i} className={styles.timingRow}>
+                    <span className={styles.timingDay}>{t.day}</span>
+                    <span className={styles.timingTime}>{timingStr}</span>
+                  </div>
+                );
+              })}
             </div>
           </motion.div>
         </motion.div>

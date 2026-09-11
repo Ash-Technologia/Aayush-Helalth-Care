@@ -19,6 +19,14 @@
 }
 
 .logoWrap   { text-align: center; margin-bottom: 28px; }
+.logoImg {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 12px;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 8px 16px rgba(15, 118, 110, 0.25));
+}
 .logoMark {
   width: 56px;
   height: 56px;

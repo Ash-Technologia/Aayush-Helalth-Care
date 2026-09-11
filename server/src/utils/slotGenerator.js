@@ -88,24 +88,50 @@ const isInBreakTime = (slotStart, slotEnd, breakTimings) => {
 // ─── Past-slot Filtering ──────────────────────────────────────────────────────
 
 /**
- * Returns true if a slot has already started (for today's date).
+ * Returns 'YYYY-MM-DD' representing current calendar date in Indian Standard Time.
+ * @returns {string} e.g. "2026-09-12"
+ */
+const getISTTodayString = () => {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Kolkata',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
+};
+
+/**
+ * Returns true if a slot has already started (for today's date in IST).
  * Adds a 5-minute buffer so users can't book a slot that starts in <5 minutes.
  *
  * @param {string} slotStart     - HH:mm
- * @param {Date}   requestDate   - The appointment date (normalized to UTC midnight)
+ * @param {Date|string} requestDate - The appointment date (UTC midnight Date or YYYY-MM-DD string)
  * @returns {boolean}
  */
 const isSlotInPast = (slotStart, requestDate) => {
-  const now = new Date();
-  const today = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
-  );
+  const istTodayStr = getISTTodayString();
+  const reqDateStr =
+    typeof requestDate === 'string'
+      ? requestDate.slice(0, 10)
+      : requestDate instanceof Date
+      ? requestDate.toISOString().slice(0, 10)
+      : '';
 
-  // Only apply past-slot logic if the requested date is today
-  if (requestDate.getTime() !== today.getTime()) return false;
+  // Only apply past-slot logic if the requested date is today in IST
+  if (reqDateStr !== istTodayStr) return false;
 
   const slotMins = timeToMins(slotStart);
-  const currentMins = now.getUTCHours() * 60 + now.getUTCMinutes() + 5; // +5 min buffer
+
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Kolkata',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(new Date());
+
+  const hour = parseInt(parts.find((p) => p.type === 'hour')?.value || '0', 10);
+  const minute = parseInt(parts.find((p) => p.type === 'minute')?.value || '0', 10);
+  const currentMins = hour * 60 + minute + 5; // +5 min buffer
 
   return slotMins <= currentMins;
 };
@@ -180,6 +206,7 @@ module.exports = {
   generateTimeSlots,
   isInBreakTime,
   isSlotInPast,
+  getISTTodayString,
   filterAvailableSlots,
   deduplicateSlots,
 };

@@ -24,6 +24,7 @@ export const profileService = {
 
 // ── Slots ─────────────────────────────────────────────────────────
 export const slotsService = {
+  getConfig: () => api.get('/slots/config'),
   getAvailability: (date, type) =>
     api.get('/slots/available', { params: { date, type } }),
 };

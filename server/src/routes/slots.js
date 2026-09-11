@@ -4,9 +4,13 @@ const express = require('express');
 const { query } = require('express-validator');
 const router = express.Router();
 
-const { getAvailableSlots } = require('../controllers/slotsController');
+const { getAvailableSlots, getSlotsConfig } = require('../controllers/slotsController');
 const { optionalAuth } = require('../middleware/auth');
 const { validate } = require('../middleware/validate');
+
+// ─── GET /api/v1/slots/config ────────────────────────────────────────────────
+// Public endpoint: returns active template days, upcoming holidays, fees, and closure info
+router.get('/config', getSlotsConfig);
 
 // ─── GET /api/v1/slots/available ─────────────────────────────────────────────
 // Public endpoint — no auth required.

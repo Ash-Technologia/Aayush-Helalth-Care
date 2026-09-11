@@ -5,7 +5,7 @@ const DoctorProfile = require('../models/DoctorProfile');
 const Holiday = require('../models/Holiday');
 const SlotTemplate = require('../models/SlotTemplate');
 const Appointment = require('../models/Appointment');
-const { filterAvailableSlots, deduplicateSlots } = require('../utils/slotGenerator');
+const { filterAvailableSlots, deduplicateSlots, getISTTodayString } = require('../utils/slotGenerator');
 
 // ─── GET /api/v1/slots/available ─────────────────────────────────────────────
 /**
@@ -14,18 +14,6 @@ const { filterAvailableSlots, deduplicateSlots } = require('../utils/slotGenerat
  * Query params:
  *   date (required) — YYYY-MM-DD
  *   type (required) — 'online' | 'clinic'
- *
- * Algorithm (per spec):
- *   1. Reject past dates
- *   2. Check holiday
- *   3. Check emergency closure
- *   4. Find active SlotTemplates for dayOfWeek + type
- *   5. Generate all raw slots per template
- *   6. Filter out break times
- *   7. Filter out past slots (for today)
- *   8. Query blocked appointments
- *   9. Remove blocked slots
- *  10. Deduplicate + sort
  */
 const getAvailableSlots = asyncHandler(async (req, res) => {
   const { date, type } = req.query;
@@ -45,26 +33,25 @@ const getAvailableSlots = asyncHandler(async (req, res) => {
     });
   }
 
-  // Parse and normalize date to UTC midnight
-  const parsed = new Date(date);
-  if (isNaN(parsed.getTime())) {
+  const [y, m, d] = date.split('-').map(Number);
+  if (!y || !m || !d) {
     return res.status(400).json({
       success: false,
       message: 'Invalid date format. Use YYYY-MM-DD.',
     });
   }
 
-  const requestDate = new Date(
-    Date.UTC(parsed.getFullYear(), parsed.getMonth(), parsed.getDate())
-  );
+  const requestDate = new Date(Date.UTC(y, m - 1, d));
+  if (isNaN(requestDate.getTime())) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid date format. Use YYYY-MM-DD.',
+    });
+  }
 
-  // Reject past dates (before today UTC)
-  const todayUTC = new Date();
-  const today = new Date(
-    Date.UTC(todayUTC.getUTCFullYear(), todayUTC.getUTCMonth(), todayUTC.getUTCDate())
-  );
-
-  if (requestDate < today) {
+  // Reject past dates relative to Indian Standard Time
+  const istTodayStr = getISTTodayString();
+  if (date < istTodayStr) {
     return res.status(400).json({
       success: false,
       available: false,
@@ -145,4 +132,75 @@ const getAvailableSlots = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { getAvailableSlots };
+// ─── GET /api/v1/slots/config ────────────────────────────────────────────────
+/**
+ * Returns scheduling metadata for the client calendar:
+ * - Active days of week per consultation type (0=Sun..6=Sat)
+ * - Upcoming holidays
+ * - Emergency closure status
+ * - Current consultation fee & clinic timings
+ */
+const getSlotsConfig = asyncHandler(async (req, res) => {
+  const profile = await DoctorProfile.getSingleton();
+  const templates = await SlotTemplate.find({ isActive: true }).lean();
+
+  const activeDays = {
+    all: [...new Set(templates.map((t) => t.dayOfWeek))],
+    online: [
+      ...new Set(
+        templates
+          .filter((t) => t.consultationType === 'online' || t.consultationType === 'both')
+          .map((t) => t.dayOfWeek)
+      ),
+    ],
+    clinic: [
+      ...new Set(
+        templates
+          .filter((t) => t.consultationType === 'clinic' || t.consultationType === 'both')
+          .map((t) => t.dayOfWeek)
+      ),
+    ],
+  };
+
+  const istTodayStr = getISTTodayString();
+  const [y, m, d] = istTodayStr.split('-').map(Number);
+  const todayUtc = new Date(Date.UTC(y, m - 1, d));
+  const futureUtc = new Date(todayUtc.getTime() + 60 * 24 * 60 * 60 * 1000);
+
+  const holidays = await Holiday.find({
+    $or: [
+      { date: { $gte: todayUtc, $lte: futureUtc } },
+      { isRecurring: true },
+    ],
+  })
+    .select('date reason isRecurring')
+    .lean();
+
+  return res.status(200).json({
+    success: true,
+    data: {
+      activeDays,
+      holidays: holidays.map((h) => ({
+        date: h.date ? h.date.toISOString().slice(0, 10) : null,
+        reason: h.reason,
+        isRecurring: h.isRecurring,
+      })),
+      emergencyClosure: {
+        isClosed: !!profile.isEmergencyClosed,
+        message: profile.emergencyMessage || '',
+      },
+      advanceBookingDays: 30,
+      consultationFee: profile.consultationFee ?? 500,
+      clinicTimings: profile.clinicTimings || [],
+      payment: {
+        qrImageUrl: profile.payment?.qrImageUrl || null,
+        upiId: profile.payment?.upiId || '',
+        accountName: profile.payment?.accountName || 'Amrut Singhavi',
+        instructions: profile.payment?.instructions || '',
+      },
+      whatsappNumber: profile.whatsappNumber || '9822843015',
+    },
+  });
+});
+
+module.exports = { getAvailableSlots, getSlotsConfig };

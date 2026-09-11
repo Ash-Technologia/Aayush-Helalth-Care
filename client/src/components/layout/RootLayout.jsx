@@ -30,7 +30,7 @@ export default function RootLayout() {
     queryFn: () => profileService.getDoctorProfile().then((r) => r.data.data),
   });
   const profile = profileData?.profile || profileData;
-  const logoUrl = profile?.imageUrl ? resolveBackendAssetUrl(profile.imageUrl) : '/logo.png';
+  const logoUrl = '/logo.svg';
 
   useEffect(() => { dispatch(closeMobileMenu()); }, [location.pathname, dispatch]);
 
@@ -67,33 +67,29 @@ export default function RootLayout() {
   return (
     <div className={styles.root}>
       <Helmet>
-        {profile?.imageUrl && (
-          <link rel="icon" type="image/jpeg" href={logoUrl} />
-        )}
+        <link rel="icon" type="image/svg+xml" href="/logo.svg" />
       </Helmet>
       {/* ─── Header ─────────────────────────────────────────── */}
       <header className={styles.header}>
         <div className={`container ${styles.nav}`}>
 
           <Link to="/" className={styles.logo}>
-  <img
-    src={logoUrl}
-    alt="Aayush Health Care"
-    className={styles.logoImage}
-    onError={(e) => { e.target.style.display = 'none'; }}
-  />
+            <img
+              src={logoUrl}
+              alt="Aayush Health Care"
+              className={styles.logoImage}
+            />
 
-  <span className={styles.logoTextWrap}>
-    <span className={styles.logoName}>
-      Aayush Health Care
-    </span>
+            <span className={styles.logoTextWrap}>
+              <span className={styles.logoName}>
+                Aayush Health Care
+              </span>
 
-    <span className={styles.logoTagline}>
-      Ayurveda • Acupressure •
-      Neurotherapy
-    </span>
-  </span>
-</Link>
+              <span className={styles.logoTagline}>
+                Ayurveda • Acupressure • Neurotherapy
+              </span>
+            </span>
+          </Link>
 
 
           {/* Desktop nav */}
@@ -169,34 +165,32 @@ export default function RootLayout() {
 
             <div className={styles.footerBrand}>
               <div className={styles.footerLogoRow}>
-  <img
-    src={logoUrl}
-    alt="Aayush Health Care"
-    className={styles.footerLogoImage}
-    onError={(e) => { e.target.style.display = 'none'; }}
-  />
-
-  <span className={styles.footerLogoText}>
-    Aayush Health Care
-  </span>
-</div>
+                <img
+                  src={logoUrl}
+                  alt="Aayush Health Care"
+                  className={styles.footerLogoImage}
+                />
+                <span className={styles.footerLogoText}>
+                  Aayush Health Care
+                </span>
+              </div>
               <p className={styles.footerTagline}>
-                Amrut Singhavi — Acupressure & Neurotherapy Specialist.<br />
-                Healing naturally, guided by science.
+                {profile?.tagline || 'Amrut Singhavi — Acupressure & Neurotherapy Specialist. Healing naturally, guided by science.'}
               </p>
               <div className={styles.footerContact}>
                 <div className={styles.footerContactItem}>
                   <span className={styles.footerContactIcon}>📞</span>
-                  +91 98228 43015
+                  {profile?.contactPhone || '+91 98228 43015'}
                 </div>
                 <div className={styles.footerContactItem}>
                   <span className={styles.footerContactIcon}>📧</span>
-                  amrutsinghavi@gmail.com
+                  {profile?.contactEmail || 'amrutsinghavi@gmail.com'}
                 </div>
                 <div className={styles.footerContactItem}>
                   <span className={styles.footerContactIcon}>📍</span>
-                  {/* TODO: pull from DoctorProfile.address when dynamic profile fields are added */}
-                  Matoshri Arcade, Near Khatri Compound, Amravati
+                  {profile?.address?.city
+                    ? `${profile.address.line1 ? profile.address.line1 + ', ' : ''}${profile.address.city}, ${profile.address.state || 'Maharashtra'}`
+                    : 'Matoshri Arcade, Near Khatri Compound, Amravati'}
                 </div>
               </div>
             </div>
@@ -216,10 +210,10 @@ export default function RootLayout() {
 
             <div className={styles.footerCol}>
               <div className={styles.footerColTitle}>Services</div>
-              <span className={styles.footerLink}>Online Consultation</span>
-              <span className={styles.footerLink}>In-Clinic Visit</span>
-              <span className={styles.footerLink}>Panchakarma</span>
-              <span className={styles.footerLink}>Chronic Care</span>
+              <Link to="/book?type=online" className={styles.footerLink}>Online Consultation</Link>
+              <Link to="/book?type=clinic" className={styles.footerLink}>In-Clinic Visit</Link>
+              <Link to="/book" className={styles.footerLink}>Panchakarma</Link>
+              <Link to="/book" className={styles.footerLink}>Chronic Care</Link>
             </div>
 
           </div>

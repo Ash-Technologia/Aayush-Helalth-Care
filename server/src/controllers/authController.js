@@ -340,15 +340,34 @@ const verifyOtp = asyncHandler(async (req, res) => {
   });
 });
 
+const getCleanFrontendUrl = () => {
+  const url =
+    process.env.PUBLIC_FRONTEND_URL ||
+    process.env.FRONTEND_URL ||
+    (process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : '');
+  return url ? url.replace(/\/+$/, '') : '';
+};
+
 // ─── GET /api/v1/auth/google ──────────────────────────────────────────────────
 /**
  * Initiates Google OAuth flow.
  * Passport redirects the user to Google's consent screen.
  */
-const googleAuth = passport.authenticate('google', {
-  scope: ['profile', 'email'],
-  session: false,
-});
+const googleAuth = (req, res, next) => {
+  if (!passport._strategy('google')) {
+    const frontendUrl = getCleanFrontendUrl() || 'http://localhost:5173';
+    return res.redirect(
+      `${frontendUrl}/auth?error=${encodeURIComponent(
+        'Google sign-in is not configured on this server.'
+      )}`
+    );
+  }
+
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    session: false,
+  })(req, res, next);
+};
 
 const crypto = require('crypto');
 const googleCodeMap = new Map();
@@ -383,9 +402,17 @@ setInterval(() => {
  * On failure: redirect to frontend login with error query param.
  */
 const googleCallback = (req, res, next) => {
-  passport.authenticate('google', { session: false }, async (err, user, info) => {
-    const frontendUrl = process.env.PUBLIC_FRONTEND_URL || process.env.FRONTEND_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : '');
+  const frontendUrl = getCleanFrontendUrl();
 
+  if (!passport._strategy('google')) {
+    return res.redirect(
+      `${frontendUrl || 'http://localhost:5173'}/auth?error=${encodeURIComponent(
+        'Google sign-in is not configured on this server.'
+      )}`
+    );
+  }
+
+  passport.authenticate('google', { session: false }, async (err, user, info) => {
     if (!frontendUrl) {
       console.error('[Google OAuth] FRONTEND_URL is not configured. Set PUBLIC_FRONTEND_URL or FRONTEND_URL in production.');
     }

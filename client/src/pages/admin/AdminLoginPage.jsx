@@ -19,7 +19,7 @@ export default function AdminLoginPage() {
     queryFn: () => profileService.getDoctorProfile().then((r) => r.data.data),
   });
   const profile = profileData?.profile || profileData;
-  const logoUrl = profile?.imageUrl ? resolveBackendAssetUrl(profile.imageUrl) : '/logo.png';
+  const logoUrl = '/logo.svg';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] =
@@ -74,9 +74,7 @@ export default function AdminLoginPage() {
     <>
       <Helmet>
         <title>Admin Login — Aayush Health Care</title>
-        {profile?.imageUrl && (
-          <link rel="icon" type="image/jpeg" href={logoUrl} />
-        )}
+        <link rel="icon" type="image/svg+xml" href={logoUrl} />
       </Helmet>
 
       <div className={styles.page}>

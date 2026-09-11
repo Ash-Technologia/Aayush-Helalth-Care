@@ -124,7 +124,7 @@ function StepType({ type, onChange, onNext }) {
 }
 
 // ── Step 2: Date Picker ──────────────────────────────────────────
-function StepDate({ selectedDate, onChange, onNext, onBack }) {
+function StepDate({ selectedDate, onChange, onNext, onBack, consultationType, slotConfig }) {
   const today = new Date();
   const [viewDate, setViewDate] = useState(() => {
     // If a date is already selected, open that month; otherwise open today's month
@@ -135,9 +135,20 @@ function StepDate({ selectedDate, onChange, onNext, onBack }) {
     return new Date(today.getFullYear(), today.getMonth(), 1);
   });
 
+  const activeDays =
+    slotConfig?.activeDays?.[consultationType] ||
+    slotConfig?.activeDays?.all ||
+    [1, 2, 3, 4, 5, 6];
+
+  const holidayMap = new Map();
+  (slotConfig?.holidays || []).forEach((h) => {
+    if (h.date) holidayMap.set(h.date, h.reason);
+  });
+
   const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
   const firstDow = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getDay();
-  const maxDate = new Date(); maxDate.setDate(maxDate.getDate() + 30);
+  const maxDate = new Date();
+  maxDate.setDate(maxDate.getDate() + (slotConfig?.advanceBookingDays || 30));
 
   const cells = [];
   for (let i = 0; i < firstDow; i++) cells.push(null);
@@ -147,8 +158,13 @@ function StepDate({ selectedDate, onChange, onNext, onBack }) {
     if (!d) return;
     const date = new Date(viewDate.getFullYear(), viewDate.getMonth(), d);
     const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    if (date < todayMidnight || date > maxDate || date.getDay() === 0) return;
-    onChange(toLocalDate(date));
+    const dateStr = toLocalDate(date);
+    const isPast = date < todayMidnight;
+    const isTooFar = date > maxDate;
+    const isInactiveDay = !activeDays.includes(date.getDay());
+    const isHoliday = holidayMap.has(dateStr);
+    if (isPast || isTooFar || isInactiveDay || isHoliday) return;
+    onChange(dateStr);
   };
 
   const prevMonth = () => {
@@ -162,10 +178,32 @@ function StepDate({ selectedDate, onChange, onNext, onBack }) {
     setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1));
   };
 
+  const activeDayNames = activeDays.map((dow) => DAYS[dow]).join(', ');
+
   return (
     <div className={styles.stepContent}>
       <h2 className={styles.stepTitle}>Select a Date</h2>
-      <p className={styles.stepSub}>Available Mon–Sat. Sundays are closed.</p>
+      <p className={styles.stepSub}>
+        Available on: <strong>{activeDayNames || 'Mon–Sat'}</strong>.
+      </p>
+
+      {slotConfig?.emergencyClosure?.isClosed && (
+        <div style={{
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '1px solid rgba(239, 68, 68, 0.25)',
+          borderRadius: 'var(--radius-md)',
+          padding: '12px 16px',
+          marginBottom: '16px',
+          color: '#b91c1c',
+          fontSize: '0.9rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+        }}>
+          <span>🚨</span>
+          <span>{slotConfig.emergencyClosure.message || 'Clinic is temporarily closed for emergency.'}</span>
+        </div>
+      )}
 
       <div className={styles.calendar}>
         <div className={styles.calHeader}>
@@ -182,16 +220,24 @@ function StepDate({ selectedDate, onChange, onNext, onBack }) {
             const date = new Date(viewDate.getFullYear(), viewDate.getMonth(), d);
             const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
             const dateStr = toLocalDate(date);
-            const disabled = date < todayMidnight || date > maxDate || date.getDay() === 0;
+            const isPast = date < todayMidnight;
+            const isTooFar = date > maxDate;
+            const isInactiveDay = !activeDays.includes(date.getDay());
+            const holidayReason = holidayMap.get(dateStr);
+            const disabled = isPast || isTooFar || isInactiveDay || !!holidayReason;
             const isSelected = dateStr === selectedDate;
             return (
               <button
                 key={d}
                 onClick={() => !disabled && handleDay(d)}
                 disabled={disabled}
+                title={holidayReason ? `Clinic Holiday: ${holidayReason}` : undefined}
                 className={`${styles.calCell} ${isSelected ? styles.calSelected : ''} ${disabled ? styles.calDisabled : ''}`}
               >
                 {d}
+                {holidayReason && (
+                  <span style={{ fontSize: '0.6rem', display: 'block', lineHeight: 1 }}>🌴</span>
+                )}
               </button>
             );
           })}
@@ -420,8 +466,14 @@ function StepPayment({ profile, appointment, onNext, onBack }) {
   };
 
   const fee = appointment.feeSnapshot || profile?.consultationFee || 500;
-  const upiId = appointment.payment?.upiId || 'aayushhealth@upi';
-  const resolvedQrUrl = resolveBackendAssetUrl(appointment.payment?.qrImageUrl);
+  const upiId = appointment.payment?.upiId || profile?.payment?.upiId || '9822843015@ybl';
+  const qrRawUrl = appointment.payment?.qrImageUrl || profile?.payment?.qrImageUrl;
+  const resolvedQrUrl = resolveBackendAssetUrl(qrRawUrl);
+  const waNumber = profile?.whatsappNumber || '9822843015';
+  const waMessage = encodeURIComponent(
+    `Hello Dr. Amrut Singhavi, I have made payment for Appointment #${appointment._id?.slice(-8).toUpperCase()} (₹${fee}). Please find my payment screenshot attached.`
+  );
+  const waUrl = `https://wa.me/91${waNumber.replace(/\D/g, '').slice(-10)}?text=${waMessage}`;
 
   return (
     <div className={styles.stepContent}>
@@ -442,7 +494,11 @@ function StepPayment({ profile, appointment, onNext, onBack }) {
               </div>
             )
           }
-          <p className={styles.qrHint}>{appointment.payment?.instructions || 'Pay exact amount. Screenshot required.'}</p>
+          <p className={styles.qrHint}>
+            {appointment.payment?.instructions ||
+              profile?.payment?.instructions ||
+              'Scan to pay the exact amount. Screenshot is required to confirm.'}
+          </p>
         </div>
 
         {/* Upload Card */}
@@ -473,11 +529,34 @@ function StepPayment({ profile, appointment, onNext, onBack }) {
               placeholder="12-digit UPI ref number" />
           </div>
 
+          <div style={{ margin: '4px 0 16px' }}>
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-secondary btn-sm"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                width: '100%',
+                justifyContent: 'center',
+                background: '#f0fdf4',
+                color: '#15803d',
+                borderColor: '#bbf7d0',
+                fontWeight: 600,
+              }}
+              onClick={() => setWaSent(true)}
+            >
+              <span>💬</span> Send Screenshot on WhatsApp
+            </a>
+          </div>
+
           <label className={styles.checkRow}>
             <input type="checkbox" checked={waSent} onChange={(e) => setWaSent(e.target.checked)} />
             <span>
               I have also sent the screenshot on WhatsApp to{' '}
-              <strong>{profile?.whatsappNumber || '9822843015'}</strong>
+              <strong>+91 {waNumber}</strong>
             </span>
           </label>
         </div>
@@ -569,6 +648,20 @@ export default function BookingPage() {
   const type = useSelector(selectConsultationType);
   const [searchParams] = useSearchParams();
   const rescheduleId = searchParams.get('reschedule');
+  const typeParam = searchParams.get('type');
+
+  // Pre-select consultation type from URL parameter (e.g. /book?type=clinic or /book?type=online)
+  useEffect(() => {
+    if (typeParam) {
+      const normalizedType = typeParam === 'in-clinic' ? 'clinic' : typeParam;
+      if (['online', 'clinic'].includes(normalizedType)) {
+        dispatch(setConsultationType(normalizedType));
+        if (step === 1) {
+          dispatch(setBookingStep(2));
+        }
+      }
+    }
+  }, [typeParam, dispatch, step]);
 
   // ── Form state ──────────────────────────────────────────────────
   const [form, setForm] = useState({
@@ -580,9 +673,8 @@ export default function BookingPage() {
   });
 
   // ── Appointment state — persisted in sessionStorage ─────────────
-  // This is the single fix for the blank-screen-on-refresh bug.
   // After a lock or reschedule succeeds, we save the appointment object
-  // to sessionStorage. On mount we restore it, so step 5/6 always has data.
+  // to sessionStorage. On mount we restore it, so step 5/6 always has data across reloads.
   const [appointment, setAppointment] = useState(() => loadAppt());
 
   const persistAppt = useCallback((appt) => {
@@ -590,12 +682,18 @@ export default function BookingPage() {
     saveAppt(appt);
   }, []);
 
-  // ── Doctor profile ──────────────────────────────────────────────
+  // ── Doctor profile & Slot Config ─────────────────────────────────
   const { data: profileData } = useQuery({
     queryKey: ['doctorProfile'],
     queryFn: () => profileService.getDoctorProfile().then((r) => r.data.data),
   });
   const profile = profileData;
+
+  const { data: slotConfigData } = useQuery({
+    queryKey: ['slotConfig'],
+    queryFn: () => slotsService.getConfig().then((r) => r.data.data),
+  });
+  const slotConfig = slotConfigData;
 
   // ── Load old appointment for reschedule ──────────────────────────
   const { data: oldAppt } = useQuery({
@@ -650,29 +748,6 @@ export default function BookingPage() {
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, [dispatch]); // intentionally only runs once on mount
-
-  // ── Cleanup on unmount if flow is incomplete ─────────────────────
-  // If user navigates away mid-flow (not via browser back, e.g. clicking
-  // a nav link), reset the session so next visit starts fresh.
-  // We do NOT reset if on the Done step (step 6) — that's a completed flow.
-  const unmountStepRef = useRef(step);
-  useEffect(() => { unmountStepRef.current = step; }, [step]);
-
-  useEffect(() => {
-    return () => {
-      const s = unmountStepRef.current;
-      // If they leave mid-flow (not done), reset so next visit is clean
-      if (s > 1 && s < 6) {
-        dispatch(resetBookingFlow());
-        clearAppt();
-      }
-      // If they completed (step 6), also reset so next visit starts fresh
-      if (s === 6) {
-        dispatch(resetBookingFlow());
-        clearAppt();
-      }
-    };
-  }, [dispatch]); // intentionally only runs on unmount
 
   // ── Lock slot mutation ───────────────────────────────────────────
   const lockMutation = useMutation({
@@ -837,6 +912,8 @@ export default function BookingPage() {
                 {step === 2 && (
                   <StepDate
                     selectedDate={date}
+                    consultationType={type}
+                    slotConfig={slotConfig}
                     onChange={(d) => dispatch(setSelectedDate(d))}
                     onNext={() => go(3)}
                     onBack={() => go(1)}

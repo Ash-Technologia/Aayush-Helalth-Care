@@ -571,22 +571,23 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 2rem;
-  font-weight: 800;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   color: var(--clr-green-700);
   background: var(--clr-green-50);
   border: 1px solid var(--clr-green-200);
-  padding: 5px 14px;
+  padding: 6px 14px;
   border-radius: var(--radius-full);
   width: fit-content;
 }
 
 .dotLive {
-  width: 20px;
-  height: 20px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: var(--clr-teal-500);
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.2);
+  background: var(--clr-green-500);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25);
   animation: livePulse 2s infinite;
 }
 

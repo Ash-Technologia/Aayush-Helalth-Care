@@ -28,13 +28,18 @@ export default function AuthPage() {
   const [countdown,  setCountdown]  = useState(0);
   const [isNew,      setIsNew]      = useState(false);
 
-  // Sync mode changes from query param if any
+  // Sync mode changes and error messages from query param if any
   useEffect(() => {
     const mode = searchParams.get('mode');
     if (mode === 'signup') {
       setIsSignUp(true);
     } else if (mode === 'login') {
       setIsSignUp(false);
+    }
+
+    const err = searchParams.get('error');
+    if (err) {
+      toast.error(decodeURIComponent(err));
     }
   }, [searchParams]);
 
@@ -136,9 +141,11 @@ export default function AuthPage() {
         >
           {/* Logo */}
           <div className={styles.logoWrap}>
-            <div className={styles.logoMark} aria-hidden="true">
-              <span className={styles.logoMarkInner}>AH</span>
-            </div>
+            <img
+              src="/logo.svg"
+              alt="Aayush Health Care"
+              className={styles.logoImg}
+            />
             <div className={styles.logoText}>Aayush Health Care</div>
             <div className={styles.logoSub}>Amrut Singhavi — Ayurvedic Consultancy</div>
           </div>

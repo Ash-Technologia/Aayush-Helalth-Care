@@ -31,7 +31,7 @@ export default function AdminLayout() {
     queryFn: () => profileService.getDoctorProfile().then((r) => r.data.data),
   });
   const profile = profileData?.profile || profileData;
-  const logoUrl = profile?.imageUrl ? resolveBackendAssetUrl(profile.imageUrl) : '/logo.png';
+  const logoUrl = '/logo.svg';
 
   useEffect(() => {
     setIsMobileOpen(false);
@@ -46,9 +46,7 @@ export default function AdminLayout() {
   return (
     <div className={styles.root}>
       <Helmet>
-        {profile?.imageUrl && (
-          <link rel="icon" type="image/jpeg" href={logoUrl} />
-        )}
+        <link rel="icon" type="image/svg+xml" href={logoUrl} />
       </Helmet>
       
       {/* Mobile Top Header */}
